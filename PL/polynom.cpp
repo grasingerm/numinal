@@ -16,8 +16,8 @@ public:
     double evaluate(const double x)
     {
         double u = 0;
-        for (auto a_n = coeffs.begin(), end = --coeffs.end(); a_n != end;)
-            u += u*x + *(a_n++);
+        for (auto a_n : coeffs)
+            u = u*x + a_n;
         return u;
     }
     list<double> get_coeffs() { return coeffs; }
@@ -60,7 +60,7 @@ int main(int argc, char* argv[])
             poly.add_coeff(coeff);
         }
         
-        cout << poly << endl;
+        //cout << poly << endl;
         
         while (1)
         {
@@ -71,6 +71,7 @@ int main(int argc, char* argv[])
             cout << "f(" << x << ") = " << poly.evaluate(x) << endl;
         }
         
+        cout << "exited loops" << endl;
         cin >> do_continue;
         cout << do_continue << endl;
         boost::algorithm::to_lower(do_continue);
