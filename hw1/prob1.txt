@@ -1,0 +1,62 @@
+approximate pi 3.14057, n 981, error 0.00101833
+approximate pi 3.14261, n 982, error 0.00101729
+approximate pi 3.14058, n 983, error 0.00101626
+approximate pi 3.14261, n 984, error 0.00101523
+approximate pi 3.14058, n 985, error 0.0010142
+approximate pi 3.14261, n 986, error 0.00101317
+approximate pi 3.14058, n 987, error 0.00101215
+approximate pi 3.1426, n 988, error 0.00101112
+approximate pi 3.14058, n 989, error 0.0010101
+approximate pi 3.1426, n 990, error 0.00100908
+approximate pi 3.14058, n 991, error 0.00100806
+approximate pi 3.1426, n 992, error 0.00100705
+approximate pi 3.14059, n 993, error 0.00100604
+approximate pi 3.1426, n 994, error 0.00100502
+approximate pi 3.14059, n 995, error 0.00100402
+approximate pi 3.1426, n 996, error 0.00100301
+approximate pi 3.14059, n 997, error 0.001002
+approximate pi 3.14259, n 998, error 0.001001
+approximate pi 3.14059, n 999, error 0.001
+SOLUTION CONVERGED.
+approximate pi 3.14059, iterations 1000, error 0.001
+
+approximate pi 3.14159, n 9999986, error 1e-07
+approximate pi 3.14159, n 9999987, error 1e-07
+approximate pi 3.14159, n 9999988, error 1e-07
+approximate pi 3.14159, n 9999989, error 1e-07
+approximate pi 3.14159, n 9999990, error 1e-07
+approximate pi 3.14159, n 9999991, error 1e-07
+approximate pi 3.14159, n 9999992, error 1e-07
+approximate pi 3.14159, n 9999993, error 1e-07
+approximate pi 3.14159, n 9999994, error 1e-07
+approximate pi 3.14159, n 9999995, error 1e-07
+SOLUTION CONVERGED.
+approximate pi 3.14159, iterations 9999996, error 1e-07
+
+
+Enter a tolerance in which to approximate 1/e to: 1e-3
+approximate 1/e 1, n 0, error 0.632121
+approximate 1/e 0, n 1, error 0.367879
+approximate 1/e 0.5, n 2, error 0.132121
+approximate 1/e 0.333333, n 3, error 0.0345461
+approximate 1/e 0.375, n 4, error 0.00712056
+approximate 1/e 0.366667, n 5, error 0.00121277
+approximate 1/e 0.368056, n 6, error 0.000176114
+SOLUTION CONVERGED.
+approximate 1/e 0.368056, iterations 7, error 0.000176114
+
+Enter a tolerance in which to approximate 1/e to: 1e-7
+approximate 1/e 1, n 0, error 0.632121
+approximate 1/e 0, n 1, error 0.367879
+approximate 1/e 0.5, n 2, error 0.132121
+approximate 1/e 0.333333, n 3, error 0.0345461
+approximate 1/e 0.375, n 4, error 0.00712056
+approximate 1/e 0.366667, n 5, error 0.00121277
+approximate 1/e 0.368056, n 6, error 0.000176114
+approximate 1/e 0.367857, n 7, error 2.22983e-05
+approximate 1/e 0.367882, n 8, error 2.50327e-06
+approximate 1/e 0.367879, n 9, error 2.52459e-07
+approximate 1/e 0.367879, n 10, error 2.31143e-08
+SOLUTION CONVERGED.
+approximate 1/e 0.367879, iterations 11, error 2.31143e-08
+
