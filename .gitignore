@@ -1,5 +1,8 @@
 euclid
 polynom
 sqrt_a
+gauss
+inv_e
+pi
 
 *.o
