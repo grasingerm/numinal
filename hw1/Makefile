@@ -13,4 +13,4 @@ gauss: gauss.cpp
 	$(CC) $(CFLAGS) gauss.cpp -o gauss -larmadillo
 	
 clean:
-	rm *.o
+	rm -f *.o pi inv_e gauss
