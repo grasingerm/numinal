@@ -163,8 +163,8 @@ int main(int argc, char* argv[])
         ASSERT_NEAR(x_actual(i), x(i), 1e-4);
         for (int j = 0; j < 4; j++)
         {
-            ASSERT_NEAR(L_actual(i,j), L(i,j), 0.01);
-            ASSERT_NEAR(U_actual(i,j), U(i,j), 0.01);
+            ASSERT_NEAR(L_actual(i,j), L(i,j), 1e-4);
+            ASSERT_NEAR(U_actual(i,j), U(i,j), 1e-4);
         }
     }
     /* finished tests */
