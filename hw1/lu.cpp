@@ -28,7 +28,7 @@ lu_err_code lu_mdoolittle(mat &lsys, mat &L, mat &U)
     /* start L as identity matrix */
     L.eye();
     
-    /* copy lsys into U */
+    /* copy lsys into U */ /* TODO: is there a more efficent way to do this? */
     for (unsigned int i = 0; i < lsys.n_rows; i++)
         for (unsigned int j = 0; j < lsys.n_cols; j++)
             U(i, j) = lsys(i, j);
