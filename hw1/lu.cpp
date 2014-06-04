@@ -3,6 +3,12 @@
 #include <cassert>
 #include <cmath>
 
+#define ASSERT_NEAR(act, approx, tol) \
+    if (!act) \
+        assert(!approx || abs(approx) < tol); \
+    else \
+        assert(abs(((act)-(approx))/(act)) < tol)
+
 enum lu_err_code
 {
     FACTORIZATION_FAILURE,
@@ -88,14 +94,14 @@ vec lu_fb_substitution(mat &L, mat &U, vec &b)
     }
     
     /* backward substitution */
-    x(L.n_rows-1) = y(L.n_rows-1) / U(L.n_rows-1, L.n_cols-1);
+    x(L.n_rows-1) = y(U.n_rows-1) / U(U.n_rows-1, U.n_cols-1);
     
     for (int i = L.n_rows-2; i >= 0; i--)
     {
         sum = 0;
-        for (unsigned int j = i+1; j < L.n_rows; j++)
-            sum += L(i, j) * x(j);
-        x(i) = (y(i) - sum) / L(i, i);
+        for (unsigned int j = i+1; j < U.n_rows; j++)
+            sum += U(i, j) * x(j);
+        x(i) = (y(i) - sum) / U(i, i);
     }
     
     return x;
@@ -103,6 +109,7 @@ vec lu_fb_substitution(mat &L, mat &U, vec &b)
 
 int main(int argc, char* argv[])
 {
+    /* example 1, section 6.5, pg 391-392 */
     mat::fixed<4, 4> A;
     
     A << 1 << 1 << 0 << 3 << endr
@@ -111,7 +118,7 @@ int main(int argc, char* argv[])
       << -1 << 2 << 3 << -1 << endr;
       
     vec::fixed<4> b;
-    b << 4 << endr << 1 << endr << -3 << endr << 4 << endr;
+    b << 8 << endr << 7 << endr << 14 << endr << -7 << endr;
       
     mat::fixed<4, 4> L;
     mat::fixed<4, 4> U;
@@ -134,6 +141,34 @@ int main(int argc, char* argv[])
     x = lu_fb_substitution(L, U, b);
     cout << "solution..." << endl;
     cout << "x = " << endl << x << endl;
+    
+    /* test against actual values */
+    mat::fixed<4, 4> L_actual;
+    L_actual << 1 << 0 << 0 << 0 << endr
+             << 2 << 1 << 0 << 0 << endr
+             << 3 << 4 << 1 << 0 << endr
+             << -1 << -3 << 0 << 1 << endr;
+             
+    mat::fixed<4, 4> U_actual;
+    U_actual << 1 << 1 << 0 << 3 << endr
+             << 0 << -1 << -1 << -5 << endr
+             << 0 << 0 << 3 << 13 << endr
+             << 0 << 0 << 0 << -13 << endr;
+    
+    vec::fixed<4> x_actual;
+    x_actual << 3 << endr << -1 << endr << 0 << endr << 2 << endr;
+    
+    for (int i = 0; i < 4; i++)
+    {
+        ASSERT_NEAR(x_actual(i), x(i), 1e-4);
+        for (int j = 0; j < 4; j++)
+        {
+            ASSERT_NEAR(L_actual(i,j), L(i,j), 0.01);
+            ASSERT_NEAR(U_actual(i,j), U(i,j), 0.01);
+        }
+    }
+    /* finished tests */
+    
 
     return 0;
 }
