@@ -20,6 +20,7 @@ using namespace arma;
 
 /**
  * Factors a sys of equations into L and U matrices
+ * TODO: write a function to perform LU factorization with a permutation matrix
  */
 lu_err_code lu_mdoolittle(mat &lsys, mat &L, mat &U)
 {
