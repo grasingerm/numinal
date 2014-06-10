@@ -107,7 +107,8 @@ int main(int argc, char* argv[])
     A_4b    <<  4   <<  2       <<  2       <<  endr
             <<  2   <<  6       <<  2       <<  endr
             <<  2   <<  2       <<  5       <<  endr;
-     
+    
+    cout << endl << "=====================================" << endl;
     cout << "Problem 4b pg 410" << endl;
     cout << "Matrix to be factorized, A = " << endl << A_4b << endl;
     
@@ -139,7 +140,8 @@ int main(int argc, char* argv[])
     mat::fixed<4,4> L_4;
     vec::fixed<4> D_4;
     mat::fixed<4,4> A_computed_4;
-     
+    
+    cout << endl << "=====================================" << endl;
     cout << "Problem 4d pg 410" << endl;
     cout << "Matrix to be factorized, A = " << endl << A_4d << endl;
     
