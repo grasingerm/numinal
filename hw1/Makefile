@@ -1,7 +1,7 @@
 CC=g++
 CFLAGS=-Wall -Wextra -pedantic -pedantic-errors -g -std=c++11 -O3
 
-all: pi inv_e gauss lu
+all: pi inv_e gauss lu ldl
 
 pi: pi.cpp
 	$(CC) $(CFLAGS) pi.cpp -o pi
@@ -14,6 +14,9 @@ gauss: gauss.cpp
 	
 lu: lu.cpp
 	$(CC) $(CFLAGS) lu.cpp -o lu -larmadillo
+	
+ldl: ldl.cpp
+	$(CC) $(CFLAGS) ldl.cpp -o ldl -larmadillo
 	
 clean:
 	rm -f *.o pi inv_e gauss lu
