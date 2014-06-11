@@ -79,6 +79,13 @@ factor_err_code ldl_factorization(const mat &A, mat &L, vec &D)
     return FACTORIZATION_SUCCESS;
 }
 
+/**
+ * LL' factorization using Cholesky's algorithm
+ *
+ * @param A Matrix to factor, by reference
+ * @param L Matrix to store lower diagonal, by reference
+ * @return Factorization code
+ */
 factor_err_code cholesky(const mat &A, mat &L)
 {
     double sum;
@@ -111,6 +118,72 @@ factor_err_code cholesky(const mat &A, mat &L)
     L(A.n_rows-1,A.n_cols-1) = sqrt(A(A.n_rows-1,A.n_cols-1) - sum);
     
     return FACTORIZATION_SUCCESS;
+}
+
+/**
+ * Solve a linear system with LDL
+ *
+ * @param L Lower diagonal matrix
+ * @param D Vector of diagonal
+ * @param b Vector of solution
+ * @return Solution of linear system
+ */
+vec ldl_solve(mat &L, vec &D, vec &b)
+{
+    double sum;
+    vec x(L.n_rows);
+    vec y(L.n_rows);
+    
+    x(0) = b(0);
+    for (unsigned int i = 1; i < L.n_rows; i++)
+    {
+        sum = 0;
+        for (unsigned int j = 0; j < i; j++)
+            sum += L(i,j)*x(j);
+        x(i) = b(i) - sum;
+    }
+    
+    for (unsigned int i = 0; i < D.n_rows; i++)
+        y(i) = x(i)/D(i);
+        
+    x(x.n_rows-1) = y(y.n_rows-1);
+    for (int i = x.n_rows-2; i >= 0; i--)
+    {
+        sum = 0;
+        for (unsigned int j = i+1; j < x.n_rows; j++)
+            sum += L(j,i)*x(j);
+        x(i) = y(i) - sum;
+    }
+    
+    return x;
+}
+
+vec cholesky_solve(mat &L, vec &b)
+{
+    double sum;
+    vec x(L.n_rows);
+    vec y(L.n_rows);
+    
+    y(0) = b(0)/L(0,0);
+    for (unsigned int i = 1; i < L.n_rows; i++)
+    {
+        sum = 0;
+        for (unsigned int j = 0; j < i; j++)
+            sum += L(i,j)*y(j);
+        y(i) = (b(i) - sum) / L(i,i);
+    }
+    
+    x(L.n_rows-1) = y(L.n_rows-1) / L(L.n_rows-1,L.n_cols-1);
+    
+    for (int i = L.n_rows-2; i >= 0; i--)
+    {
+        sum = 0;
+        for (unsigned int j = i+1; j < L.n_rows; j++)
+            sum += L(j,i)*x(j);
+        x(i) = (y(i) - sum) / L(i,i);
+    }
+    
+    return x;
 }
 
 
@@ -258,31 +331,132 @@ int main(int argc, char* argv[])
     /* end of Problem 6d */
     
     /**
-     * example 4 pg 405
+     * Problem 7b
      */
-    A       <<  4   <<  -1      <<  1       << endr
-            <<  -1  <<  4.25    <<  2.75    << endr
-            <<  1   <<  2.75    <<  3.5     << endr;
+     
+    mat::fixed<4,4> A_7b;
+    A_7b    <<  4   <<  1       <<  1       <<  1   << endr
+            <<  1   <<  3       <<  -1      <<  1   << endr
+            <<  1   <<  -1      <<  2       <<  0   << endr
+            <<  1   <<  1       <<  0       <<  2   << endr;
     
     cout << endl << "=====================================" << endl;
-    cout << "Example 4 pg 405" << endl;
-    cout << "Matrix to be factorized, A = " << endl << A << endl;
+    cout << "Problem 7b pg 410" << endl;
+    cout << "Matrix to be factorized, A = " << endl << A_7b << endl;
     
-    assert( cholesky(A,L) == FACTORIZATION_SUCCESS );
+    assert( ldl_factorization(A_7b, L_4, D_4) == FACTORIZATION_SUCCESS );
+    
+    cout << "L = " << endl << L_4 << endl;
+    cout << "D = " << endl << D_4 << endl;
+    
+    /* compute A with L and D and check to make sure it equals the original */
+    A_computed_4 = L_4 * diagmat(D_4) * trans(L_4);
+    cout << "LDL' = " << endl << A_computed_4 << endl;
+    
+    cout << "... testing A == LDL' ... ";
+    for (unsigned int i = 0; i < A_7b.n_rows; i++)
+        for (unsigned int j = 0; j < A_7b.n_cols; j++)
+            ASSERT_NEAR(A_7b(i,j), A_computed_4(i,j), 1e-5);
+    cout << " ... passed." << endl << endl;
+    
+    vec b(4);
+    b << 0.65 << endr << 0.05 << endr << 0 << endr << 0.5 << endr;
+    vec x;
+    x = ldl_solve(L_4,D_4,b);
+    
+    cout << "b = " << endl << b << endl;
+    cout << "solution, x = " << endl << x << endl;
+    
+    vec b_computed(4);
+    b_computed = A_7b*x;
+    cout << "... testing Ax == b ... ";
+    for (unsigned int i = 0; i < b.n_rows; i++)
+            ASSERT_NEAR(b(i), b_computed(i), 1e-5);
+    cout << " ... passed." << endl << endl;
+    
+    /* end of Problem 7b */
+    
+    /**
+     * Problem 7b
+     */
+     
+    mat::fixed<3,3> A_8b;
+    A_8b    <<  4   <<  2       <<  2   << endr
+            <<  2   <<  6       <<  2   << endr
+            <<  2   <<  2       <<  5   << endr;
+    
+    cout << endl << "=====================================" << endl;
+    cout << "Problem 8b pg 411" << endl;
+    cout << "Matrix to be factorized, A = " << endl << A_8b << endl;
+    
+    assert( ldl_factorization(A_8b, L, D) == FACTORIZATION_SUCCESS );
     
     cout << "L = " << endl << L << endl;
-    cout << "L' = " << endl << trans(L) << endl;
+    cout << "D = " << endl << D << endl;
     
-    /* compute A with L and check to make sure it equals the original */
-    A_computed = L * trans(L);
-    cout << "LL' = " << endl << A_computed << endl;
+    /* compute A with L and D and check to make sure it equals the original */
+    A_computed = L * diagmat(D) * trans(L);
+    cout << "LDL' = " << endl << A_computed << endl;
+    
+    cout << "... testing A == LDL' ... ";
+    for (unsigned int i = 0; i < A_8b.n_rows; i++)
+        for (unsigned int j = 0; j < A_8b.n_cols; j++)
+            ASSERT_NEAR(A_8b(i,j), A_computed(i,j), 1e-5);
+    cout << " ... passed." << endl << endl;
+    
+    b.resize(3);
+    b << 0 << endr << 1 << endr << 0 << endr;
+    x = ldl_solve(L,D,b);
+    
+    cout << "b = " << endl << b << endl;
+    cout << "solution, x = " << endl << x << endl;
+    
+    b_computed.resize(3);
+    b_computed = A_8b*x;
+    cout << "... testing Ax == b ... ";
+    for (unsigned int i = 0; i < b.n_rows; i++)
+            ASSERT_NEAR(b(i), b_computed(i), 1e-5);
+    cout << " ... passed." << endl << endl;
+    
+    /* end of Problem 8b */
+    
+    /**
+     * Problem 7b
+     */
+    
+    cout << endl << "=====================================" << endl;
+    cout << "Problem 9b pg 411" << endl;
+    cout << "Matrix to be factorized, A = " << endl << A_7b << endl;
+    
+    assert( cholesky(A_7b, L_4) == FACTORIZATION_SUCCESS );
+    
+    cout << "L = " << endl << L_4 << endl;
+    cout << "L' = " << endl << trans(L_4) << endl;
+    
+    /* compute A with L and D and check to make sure it equals the original */
+    A_computed_4 = L_4 * trans(L_4);
+    cout << "LL' = " << endl << A_computed_4 << endl;
     
     cout << "... testing A == LL' ... ";
-    for (unsigned int i = 0; i < A.n_rows; i++)
-        for (unsigned int j = 0; j < A.n_cols; j++)
-            ASSERT_NEAR(A(i,j), A_computed(i,j), 1e-5);
+    for (unsigned int i = 0; i < A_7b.n_rows; i++)
+        for (unsigned int j = 0; j < A_7b.n_cols; j++)
+            ASSERT_NEAR(A_7b(i,j), A_computed_4(i,j), 1e-5);
     cout << " ... passed." << endl << endl;
-    /* end of example 4 */
+    
+    b.resize(4);
+    b << 0.65 << endr << 0.05 << endr << 0 << endr << 0.5 << endr;
+    x = cholesky_solve(L_4,b);
+    
+    cout << "b = " << endl << b << endl;
+    cout << "solution, x = " << endl << x << endl;
+    
+    b_computed = A_7b*x;
+    cout << "... testing Ax == b ... ";
+    for (unsigned int i = 0; i < b.n_rows; i++)
+            ASSERT_NEAR(b(i), b_computed(i), 1e-5);
+    cout << " ... passed." << endl << endl;
+    
+    /* end of Problem 9b */
 
     return 0;
 }
