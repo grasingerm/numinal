@@ -18,6 +18,12 @@ enum factor_err_code
     FACTORIZATION_SUCCESS
 };
 
+/**
+ * Returns true if the matrix is symmetric
+ *
+ * @param Matrix to check, by reference
+ * @return True if symmetric
+ */
 bool is_symmetric(const mat &A)
 {
     for (unsigned int i = 0; i < A.n_rows; i++)
@@ -26,6 +32,14 @@ bool is_symmetric(const mat &A)
     return true;
 }
 
+/**
+ * Factor a positive definite matrix with LDL'
+ *
+ * @param A Matrix to factor, by reference
+ * @param L Matrix to store lower diagonal, by reference
+ * @param D Vector to store diagonal, by reference
+ * @return Error code
+ */
 factor_err_code ldl_factorization(const mat &A, mat &L, vec &D)
 {
     /* sanity checks */
@@ -65,6 +79,42 @@ factor_err_code ldl_factorization(const mat &A, mat &L, vec &D)
     return FACTORIZATION_SUCCESS;
 }
 
+factor_err_code cholesky(const mat &A, mat &L)
+{
+    double sum;
+    L.zeros();
+
+    L(0,0) = sqrt(A(0,0));
+    for (unsigned int j = 1; j < A.n_rows; j++)
+        L(j,0) = A(j,0)/L(0,0);
+        
+    for (unsigned int i = 1; i < A.n_cols-1; i++)
+    {
+        sum = 0;
+        for (unsigned int k = 0; k < i; k++)
+            sum += L(i,k)*L(i,k);
+        L(i,i) = sqrt(A(i,i) - sum);
+        
+        for (unsigned int j = i+1; j < A.n_rows; j++)
+        {
+            sum = 0;
+            for (unsigned int k = 0; k < A.n_rows-1; k++)
+                sum += L(j,k)*L(i,k);
+            L(j,i) = (A(j,i) - sum) / L(i,i);
+        }
+    }
+    
+    sum = 0;
+    for (unsigned int k = 0; k < A.n_rows-1; k++)
+        sum += L(A.n_rows-1,k)*L(A.n_rows-1,k);
+    
+    L(A.n_rows-1,A.n_cols-1) = sqrt(A(A.n_rows-1,A.n_cols-1) - sum);
+    
+    return FACTORIZATION_SUCCESS;
+}
+
+
+// MAIN
 int main(int argc, char* argv[])
 {
     mat::fixed<3,3> A;
@@ -160,6 +210,79 @@ int main(int argc, char* argv[])
             ASSERT_NEAR(A_4d(i,j), A_computed_4(i,j), 1e-5);
     cout << " ... passed." << endl << endl;
     /* end of problem 4b */
+    
+    /**
+     * Problem 6b pg 410
+     */
+    cout << endl << "=====================================" << endl;
+    cout << "Problem 6b" << endl;
+    cout << "Matrix to be factorized, A = " << endl << A_4b << endl;
+    
+    assert( cholesky(A_4b,L) == FACTORIZATION_SUCCESS );
+    
+    cout << "L = " << endl << L << endl;
+    cout << "L' = " << endl << trans(L) << endl;
+    
+    /* compute A with L and check to make sure it equals the original */
+    A_computed = L * trans(L);
+    cout << "LL' = " << endl << A_computed << endl;
+    
+    cout << "... testing A == LL' ... ";
+    for (unsigned int i = 0; i < A_4b.n_rows; i++)
+        for (unsigned int j = 0; j < A_4b.n_cols; j++)
+            ASSERT_NEAR(A_4b(i,j), A_computed(i,j), 1e-5);
+    cout << " ... passed." << endl << endl;
+    /* end of Problem 6b */
+    
+    /**
+     * Problem 6d
+     */
+    cout << endl << "=====================================" << endl;
+    cout << "Problem 6d" << endl;
+    cout << "Matrix to be factorized, A = " << endl << A_4d << endl;
+    
+    assert( cholesky(A_4d,L_4) == FACTORIZATION_SUCCESS );
+    
+    cout << "L = " << endl << L_4 << endl;
+    cout << "L' = " << endl << trans(L_4) << endl;
+    
+    /* compute A with L and check to make sure it equals the original */
+    A_computed_4 = L_4 * trans(L_4);
+    cout << "LL' = " << endl << A_computed_4 << endl;
+    
+    cout << "... testing A == LL' ... ";
+    for (unsigned int i = 0; i < A_4d.n_rows; i++)
+        for (unsigned int j = 0; j < A_4d.n_cols; j++)
+            ASSERT_NEAR(A_4d(i,j), A_computed_4(i,j), 1e-5);
+    cout << " ... passed." << endl << endl;
+    /* end of Problem 6d */
+    
+    /**
+     * example 4 pg 405
+     */
+    A       <<  4   <<  -1      <<  1       << endr
+            <<  -1  <<  4.25    <<  2.75    << endr
+            <<  1   <<  2.75    <<  3.5     << endr;
+    
+    cout << endl << "=====================================" << endl;
+    cout << "Example 4 pg 405" << endl;
+    cout << "Matrix to be factorized, A = " << endl << A << endl;
+    
+    assert( cholesky(A,L) == FACTORIZATION_SUCCESS );
+    
+    cout << "L = " << endl << L << endl;
+    cout << "L' = " << endl << trans(L) << endl;
+    
+    /* compute A with L and check to make sure it equals the original */
+    A_computed = L * trans(L);
+    cout << "LL' = " << endl << A_computed << endl;
+    
+    cout << "... testing A == LL' ... ";
+    for (unsigned int i = 0; i < A.n_rows; i++)
+        for (unsigned int j = 0; j < A.n_cols; j++)
+            ASSERT_NEAR(A(i,j), A_computed(i,j), 1e-5);
+    cout << " ... passed." << endl << endl;
+    /* end of example 4 */
 
     return 0;
 }
