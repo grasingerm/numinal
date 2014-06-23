@@ -3,6 +3,8 @@
 #include <cassert>
 #include "assertion_helper.h"
 
+/* #define N_DEBUG 1 */
+
 #define HR1 "======================================"
 #define HR2 "--------------------------------------"
 #define HR3 "______________________________________"
@@ -157,7 +159,7 @@ int main(int argc, char* argv[])
 {
     /* bar of unit length */
     const unsigned int length = 1;
-    const double max_nodes = 8;
+    const double max_nodes = 256;
     
     /* boundary conditions */
     const double bc1 = 0.0;
