@@ -1,6 +1,7 @@
 #include <iostream>
 #include <armadillo>
 #include <cassert>
+#include <cmath>
 #include "assertion_helper.h"
 
 /* #define N_DEBUG 1 */
@@ -55,8 +56,6 @@ vec crout_tridiagonal_solve(const mat &A, const vec &b, mat &L, mat &U)
     /* note: to eliminate this overhead macro define N_DEBUG */
     mat A_computed = L*U;
     ASSERT_ARMA_MATRIX_NEAR(A,A_computed,1e-5);
-    
-    cout << "z = " << endl << z << endl;
     
     /* solve */
     x(A.n_rows-1) = z(A.n_rows-1);
@@ -157,6 +156,11 @@ inline double east_heat_transfer(const double delta_x)
 // main function
 int main(int argc, char* argv[])
 {
+    /* solution of ODE */
+    auto ode_soln = [] (const double C, const double x) -> double 
+                    { return C*sin(2*x); };
+    const double c_2 = 1/sin(2.0);
+
     /* bar of unit length */
     const unsigned int length = 1;
     const double max_nodes = 256;
@@ -164,8 +168,9 @@ int main(int argc, char* argv[])
     /* boundary conditions */
     const double bc1 = 0.0;
     const double bc2 = 1.0;
+    double x_i;
     
-    vec r, x;
+    vec r, x, t;
     mat A, U, L;
     
     /* test tridiagonal solver */
@@ -205,19 +210,40 @@ int main(int argc, char* argv[])
     cout << "pde: second partial of f w/ respect to x + 4f = 0" << endl;
     cout << "f(0) = 0; f(L) = 1" << endl << endl;
     
+    double rel_error, max_rel_error;
     for (int N = 4; N <= max_nodes; N*=2)
     {
         cout << HR2 << endl;
         cout << N << " nodes." << endl;
         L.set_size(N,N);
         U.set_size(N,N);
+        t.set_size(N);
         
         A = discretize_1D(length, N, fwest, fcenter, feast);
         r = solution_vector_1D(N, bc1, bc2);
         x = crout_tridiagonal_solve(A, r, L, U);
+        
+        for (int i = 0; i < N; i++)
+        {
+            x_i = i * double(length)/N;
+            t(i) = ode_soln(c_2, x_i);
+        }
+        
         cout << "A = " << endl << A << endl;
         cout << "r = " << endl << r << endl;
         cout << "x = " << endl << x << endl;
+        cout << "t = " << endl << t << endl;
+        
+        /* error analysis */
+        max_rel_error = 0;
+        for (unsigned int i = 0; i < t.n_rows; i++)
+        {
+            if (t(i) == 0) rel_error = abs(t(i)-x(i));
+            else rel_error = abs(t(i)-x(i))/abs(t(i));
+            if (rel_error > max_rel_error) max_rel_error = rel_error;
+        }
+            
+        cout << "N " << N << ", rel_error " << max_rel_error << endl;
     }
 
     return 0;
