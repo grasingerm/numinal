@@ -15,17 +15,18 @@ using namespace std;
 using namespace arma;
 
 /**
- * LU factorization for a tridiagonal matrix
+ * Solution of a tridiagonal matrix by Crout's algorithm
  *
  * @param A Matrix A for the linear system
  * @param b Vector b for the linear system
  * @param L Lower diagonal matrix
  * @param U Upper diagonal matrix
- * @return True for success
+ * @return Vector of x values
  */
 vec crout_tridiagonal_solve(const mat &A, const vec &b, mat &L, mat &U)
 {
     // TODO: can this be more memory efficient?
+    // TODO: should L and U be initialized here instead of passed by ref?
     vec x(A.n_rows);
     vec z(A.n_rows);
     
@@ -65,7 +66,7 @@ vec crout_tridiagonal_solve(const mat &A, const vec &b, mat &L, mat &U)
 }
 
 /**
- * Discrete a one dimensional system
+ * Discretize a one dimensional system
  *
  * @param length Length of rod
  * @param N Number of nodes
