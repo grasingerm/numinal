@@ -6,10 +6,10 @@
 
 /* #define N_DEBUG 1 */
 
-#define HR1 "======================================"
-#define HR2 "--------------------------------------"
-#define HR3 "______________________________________"
-#define HR4 ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+#define HR1 "================================================================="
+#define HR2 "-----------------------------------------------------------------"
+#define HR3 "_________________________________________________________________"
+#define HR4 ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
 
 using namespace std;
 using namespace arma;
@@ -82,8 +82,7 @@ mat discretize_1D(const int length, const int N, double (*const west)
     mat A(N,N);
     A.zeros();
     
-    A(0,0) = center(delta_x);
-    A(0,1) = west(delta_x);
+    A(0,0) = 1.0;
     
     for (int i = 1; i < N-1; i++)
     {
@@ -92,8 +91,7 @@ mat discretize_1D(const int length, const int N, double (*const west)
         A(i,i+1) = west(delta_x);
     }
     
-    A(N-1,N-1) = center(delta_x);
-    A(N-1,N-2) = east(delta_x);
+    A(N-1,N-1) = 1.0;
     
     return A;
 }
@@ -229,10 +227,10 @@ int main(int argc, char* argv[])
             t(i) = ode_soln(c_2, x_i);
         }
         
-        cout << "A = " << endl << A << endl;
-        cout << "r = " << endl << r << endl;
-        cout << "x = " << endl << x << endl;
-        cout << "t = " << endl << t << endl;
+        //cout << "A = " << endl << A << endl;
+        //cout << "r = " << endl << r << endl;
+        cout << "x' = " << endl << trans(x) << endl;
+        cout << "t' = " << endl << trans(t) << endl;
         
         /* error analysis */
         max_rel_error = 0;
