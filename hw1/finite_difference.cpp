@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <armadillo>
 #include <cassert>
 #include <cmath>
@@ -155,6 +156,11 @@ inline double east_heat_transfer(const double delta_x)
 // main function
 int main(int argc, char* argv[])
 {
+    /* open data file for N vs. max relative error */
+    ofstream conv_data;
+    conv_data.open("prob7.csv");
+    conv_data << "number_of_nodes,max_relative_error" << endl;
+
     /* solution of ODE */
     auto ode_soln = [] (const double C, const double x) -> double 
                     { return C*sin(2*x); };
@@ -243,7 +249,10 @@ int main(int argc, char* argv[])
         }
             
         cout << "N " << N << ", rel_error " << max_rel_error << endl;
+        conv_data << N << "," << max_rel_error << endl;
     }
+    
+    conv_data.close();
 
     return 0;
 }
