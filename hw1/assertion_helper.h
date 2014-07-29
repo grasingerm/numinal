@@ -3,9 +3,9 @@
 
 #define ASSERT_NEAR(act, approx, tol) \
     if (!act) \
-        assert(!approx || abs(approx) < tol); \
+        assert(!approx || fabs(approx) < tol); \
     else \
-        assert(abs(((act)-(approx))/(act)) < tol)
+        assert(fabs(((act)-(approx))/(act)) < tol)
         
 #define ASSERT_ARMA_MATRIX_NEAR(A, A_computed, tol) \
     for (unsigned int i = 0; i < (A).n_rows; i++) \
