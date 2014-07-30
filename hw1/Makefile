@@ -1,7 +1,7 @@
 CC=g++
 CFLAGS=-Wall -Wextra -pedantic -pedantic-errors -g -std=c++11 -O3
 
-all: pi inv_e gauss lu ldl finite_difference
+all: pi inv_e gauss lu ldl finite_difference gepp
 
 pi: pi.cpp
 	$(CC) $(CFLAGS) pi.cpp -o pi
@@ -20,6 +20,9 @@ ldl: ldl.cpp
 	
 finite_difference: finite_difference.cpp assertion_helper.h
 	$(CC) $(CFLAGS) finite_difference.cpp -o finite_difference -larmadillo
+	
+gepp: gauss_elim_pp.cpp
+	$(CC) $(CFLAGS) gauss_elim_pp.cpp -o gepp -larmadillo	
 	
 clean:
 	rm -f *.o pi inv_e gauss lu ldl finite_difference

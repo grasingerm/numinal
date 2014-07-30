@@ -2,6 +2,7 @@
 #include <iostream>
 #include <cassert>
 #include <cmath>
+#include <cstdlib>
 
 using namespace std;
 using namespace arma;
@@ -85,6 +86,68 @@ vec gauss_jordan(mat &aug)
     for (i = 0; i < rows; i++)
         x(i) = aug(i, rows)/aug(i, i);
 
+    return x;
+}
+
+vec gauss_elimination_pp(mat A, vec b)
+{
+    vec x(A.n_rows);
+    unsigned int row;
+    double max, val, sum, mult;
+
+    for (unsigned int i = 0; i < A.n_rows; i++)
+    {
+        /* find pivot point */
+        max = 0;
+        for (unsigned int j = i; j < A.n_cols; j++)
+        {
+            val = fabs(A(j,i));
+            if (val > max)
+            {
+                max = val;
+                row = j;
+            }
+            
+            /* sanity check */
+            assert(A(j,i) != 0);
+        }
+        
+        /* row interchange */
+        if (i != row)
+        {
+            /* swap rows i and "row" */
+            for (k = 0; k < aug.n_cols; k++)
+            {
+                val = A(i, k);
+                A(i, k) = A(row, k);
+                A(row, k) = val;
+            }
+            
+            val = b(i);
+            b(i) = b(row);
+            b(row) = val;
+        }
+        
+        /* elimination */
+        for (unsigned int j = i; j < A.n_cols; j++)
+        {
+            mult = A(j,i)/A(i,i);
+            A.row(j) -= mult * A.row(i);
+            b(j) -= b(i);
+        } 
+    }
+    
+    /* backward substitution */
+    assert(A(A.n_rows-1,A.n_cols-1) != 0);
+    x(x.n_rows-1) = b(b.n_rows-1)/A(A.n_rows-1,A.n_cols-1);
+    
+    for (unsigned int i = A.n_rows-2; i >= 0; i--)
+    {
+        sum = 0;
+        for (unsigned int j = i; j < A.n_rows; j++) sum += A(i,j)*x(j);
+        x(i) = (b(i)-sum)/A(i,i);
+    }
+    
     return x;
 }
 
