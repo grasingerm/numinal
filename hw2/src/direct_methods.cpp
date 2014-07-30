@@ -1,16 +1,10 @@
-#include <armadillo>
+#include "direct_methods.hpp"
 #include <algorithm>
-#include <iostream>
+#include <armadillo>
 #include <cassert>
-#include <cmath>
 
-#define ASSERT_NEAR(act, approx, tol) \
-    if (!(act)) \
-        assert(!(approx) || abs(approx) < (tol)); \
-    else \
-        assert(fabs(((act)-(approx))/(act)) < (tol))
+// #define NDEBUG
 
-using namespace std;
 using namespace arma;
 
 /**
@@ -96,39 +90,4 @@ vec solve_gauss_elim_wpp(mat A, vec b)
 {
     gauss_elim_wpp_Mut(A, b);
     return backward_subs(A, b);
-}
-
-
-
-int main(int argc, char* argv[])
-{
-    /* example 1, section 6.5, pg 391-392 */
-    cout << "Example 1, section 6.5, pg 391-392" << endl;
-    
-    mat::fixed<4, 4> A;
-    
-    A << 1 << 1 << 0 << 3 << endr
-      << 2 << 1 << -1 << 1 << endr
-      << 3 << -1 << -1 << 2 << endr
-      << -1 << 2 << 3 << -1 << endr;
-      
-    vec::fixed<4> b;
-    b << 8 << endr << 7 << endr << 14 << endr << -7 << endr;
-    
-    cout << "system of equations" << endl;
-    cout << A << endl << b << endl;
-    
-    vec x;
-    
-    x = solve_gauss_elim_wpp(A,b);
-    cout << "solution..." << endl;
-    cout << "x = " << endl << x << endl;
-    
-    vec::fixed<4> x_actual;
-    x_actual << 3 << endr << -1 << endr << 0 << endr << 2 << endr;
-    
-    for (int i = 0; i < 4; i++)
-        ASSERT_NEAR(x_actual(i), x(i), 1e-4);
-
-    return 0;
 }

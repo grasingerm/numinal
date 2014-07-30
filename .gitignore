@@ -4,5 +4,13 @@ sqrt_a
 gauss
 inv_e
 pi
+finite_difference
+s91
+gepp
 
 *.o
+
+build/
+build/*
+*/build
+*/build/*
