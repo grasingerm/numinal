@@ -92,11 +92,11 @@ int main()
     cout << "A = " << endl << A << endl
          << "x_o = " << endl << x_o << endl << endl;
          
-    x = x_o; /* initialize x to x_o, iterate three times */
     for (unsigned int iter = 0; iter < 6; iter++)
     {   
-        /* perform a single iteration, make sure lambda <> 0 */
-        tie (x, lambda, err, has_converged) = inverse_power_method(A, x, 1e-7, 1);
+        /* perform n iterations, make sure lambda <> 0 */
+        tie (x, lambda, err, has_converged) = 
+            inverse_power_method(A, x_o, 1e-9, iter+1);
         assert(lambda != 0);
         
         cout << "iteration: " << iter+1 << endl;
@@ -115,8 +115,8 @@ int main()
     /* ===================================================================== */
     
     /* ===================================================================== */
-    /* problem 9.1.1a */
-    SECTION("problem 9.1.1a");
+    /* problem 9.2.1a */
+    SECTION("problem 9.2.1a");
     
     A   <<  2   <<  1   <<  1   <<  endr
         <<  1   <<  2   <<  1   <<  endr
@@ -130,7 +130,7 @@ int main()
     for (unsigned int iter = 0; iter < 3; iter++)
     {   
         /* perform a single iteration, make sure lambda <> 0 */
-        tie (x, lambda, err, has_converged) = power_method(A, x, 1e-3, 1);
+        tie (x, lambda, err, has_converged) = power_method(A, x, 1e-9, 1);
         assert(lambda != 0);
         
         cout << "iteration: " << iter+1 << endl;
@@ -141,12 +141,12 @@ int main()
     }
     
     ENDSECT;
-    /* end of problem 9.1.1a */
+    /* end of problem 9.2.1a */
     /* ===================================================================== */
     
     /* ===================================================================== */
-    /* problem 9.1.1a */
-    SECTION("problem 9.1.2a");
+    /* problem 9.2.3a */
+    SECTION("problem 9.2.3a");
     
     A   <<  2   <<  1   <<  1   <<  endr
         <<  1   <<  2   <<  1   <<  endr
@@ -154,13 +154,11 @@ int main()
     
     x_o << 1 << -1 << 2;
     
-    cout << "A = " << endl << A << endl
-         << "x_o = " << endl << x_o << endl << endl;
-    x = x_o; /* initialize x to x_o, iterate three times */
     for (unsigned int iter = 0; iter < 3; iter++)
     {   
-        /* perform a single iteration, make sure lambda <> 0 */
-        tie (x, lambda, err, has_converged) = inverse_power_method(A, x, 1e-3, 1);
+        /* perform a n iterations, make sure lambda <> 0 */
+        tie (x, lambda, err, has_converged) = 
+            inverse_power_method(A, x_o, 1e-9, iter+1);
         assert(lambda != 0);
         
         cout << "iteration: " << iter+1 << endl;
@@ -171,7 +169,91 @@ int main()
     }
     
     ENDSECT;
-    /* end of problem 9.1.1a */
+    /* end of problem 9.2.3a */
+    /* ===================================================================== */
+    
+    /* ===================================================================== */
+    /* problem 9.2.7a */
+    SECTION("problem 9.2.7a");
+    
+    A   <<  2   <<  1   <<  1   <<  endr
+        <<  1   <<  2   <<  1   <<  endr
+        <<  1   <<  1   <<  2   <<  endr;
+    
+    x_o << 1 << -1 << 2;
+         
+    /* perform 25 iterations or when error < 1e-4, make sure lambda <> 0 */
+    tie (x, lambda, err, has_converged) = power_method(A, x_o, 1e-4, 25);
+    assert(lambda != 0);
+    
+    cout << "has converged?: " << ((has_converged) ? "yes" : "no") << endl;
+    cout << "err: " << err << endl;
+    cout << "lambda_max: " << lambda << endl;
+    cout << "x: " << endl << x << endl;
+    cout << endl;
+    
+    ENDSECT;
+    /* end of problem 9.2.7a */
+    /* ===================================================================== */
+    
+    /* ===================================================================== */
+    /* problem 9.2.9a */
+    SECTION("problem 9.2.9a");
+    
+    A   <<  2   <<  1   <<  1   <<  endr
+        <<  1   <<  2   <<  1   <<  endr
+        <<  1   <<  1   <<  2   <<  endr;
+    
+    x_o << 1 << -1 << 2;
+         
+    /* perform 25 iterations or when error < 1e-4, make sure lambda <> 0 */
+    tie (x, lambda, err, has_converged) = 
+        inverse_power_method(A, x_o, 1e-4, 25);
+    assert(lambda != 0);
+    
+    cout << "has converged?: " << ((has_converged) ? "yes" : "no") << endl;
+    cout << "err: " << err << endl;
+    cout << "lambda: " << lambda << endl;
+    cout << "x: " << endl << x << endl;
+    cout << endl;
+    
+    ENDSECT;
+    /* end of problem 9.2.9a */
+    /* ===================================================================== */
+    
+    /* ===================================================================== */
+    /* problem 9.2.13a */
+    SECTION("problem 9.2.9a");
+    
+    A   <<  2   <<  1   <<  1   <<  endr
+        <<  1   <<  2   <<  1   <<  endr
+        <<  1   <<  1   <<  2   <<  endr;
+    
+    x_o << 1 << -1 << 2;
+    
+    /* a vector x in the set of Real numbers of an order one less than n */
+    vec x_Rminus1(2);
+    x_Rminus1 << 1 << 1;
+    
+    double approx_lambda = lambda; /* use results from inverse power method */
+         
+    cout << "A = " << endl << A << endl
+         << "v = " << endl << x_o << endl
+         << "x = " << endl << x_Rminus1 << endl;
+    
+    /* perform 25 iterations or when error < 1e-4, make sure lambda <> 0 */
+    tie (x, lambda, err, has_converged) = 
+        wielandt_deflation(A, x_o, x_Rminus1, approx_lambda, 1e-4, 25);
+    assert(lambda != 0);
+    
+    cout << "has converged?: " << ((has_converged) ? "yes" : "no") << endl;
+    cout << "err: " << err << endl;
+    cout << "2nd most dominant lambda: " << lambda << endl;
+    cout << "x: " << endl << x << endl;
+    cout << endl;
+    
+    ENDSECT;
+    /* end of problem 9.2.13a */
     /* ===================================================================== */
     
     return 0;
