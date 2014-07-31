@@ -6,6 +6,7 @@
 
 namespace eigen
 {
+    /* iterative methods */
     typedef std::tuple<arma::vec,double,double,bool> iterative_solution_t;
 
     iterative_solution_t power_method
@@ -21,5 +22,9 @@ namespace eigen
         (const arma::mat&, const arma::vec&, const arma::vec&, const double, 
         const double, const unsigned int);
 }
+
+/* transformations */  
+arma::mat householder(const arma::mat&);
+void householder_Mut(arma::mat&);
 
 #endif /* __EIGEN_HPP__ */

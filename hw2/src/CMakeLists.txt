@@ -15,7 +15,15 @@ include_directories("../../share")
 
 # dependencies
 add_executable(s91 s91.cpp direct_methods.cpp direct_methods.hpp eigen.cpp eigen.hpp)
-target_link_libraries(s91 armadillo)
+add_executable(s93 s93.cpp direct_methods.cpp direct_methods.hpp eigen.cpp eigen.hpp)
 
-install(TARGETS s91 DESTINATION bin)
+if(UNIX)
+    target_link_libraries(s91 m)
+    target_link_libraries(s93 m)
+endif(UNIX)
+
+target_link_libraries(s91 armadillo)
+target_link_libraries(s93 armadillo)
+
+install(TARGETS s91 s93 DESTINATION bin)
 
