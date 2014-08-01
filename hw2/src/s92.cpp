@@ -115,8 +115,50 @@ int main()
     /* ===================================================================== */
     
     /* ===================================================================== */
+    /* Example 4 */
+    SECTION("Example 4, pg. 569");
+    
+    lambda = 6;
+    
+    A   <<  -4   <<  -1   <<  1    <<  endr
+        <<  -1   <<  3    <<  -2   <<  endr
+        <<  1    <<  -2   <<  3    <<  endr;
+    
+    vec v(2);
+    v << 1 << -1;
+    
+    x_o << 1 << -1 << 1;
+    
+    cout << "A = " << endl << A << endl
+         << "x_o = " << endl << x_o << endl
+         << "v = " << endl << v << endl;
+         
+    /* perform n iterations, make sure lambda <> 0 */
+    tie (x, lambda, err, has_converged) = 
+        wielandt_deflation(A, x_o, v, lambda, 1e-4, 25);
+    assert(lambda != 0);
+    
+    cout << "has converged?: " << ((has_converged) ? "yes" : "no") << endl;
+    cout << "err: " << err << endl;
+    cout << "lambda: " << lambda << endl;
+    cout << "x: " << endl << x << endl;
+    cout << endl;
+    
+    /* check values against those given in the textbook */
+    ASSERT_NEAR(x(0), -2, 1e-4);
+    ASSERT_NEAR(x(1), -1, 1e-4);
+    ASSERT_NEAR(x(2), 1, 1e-4);
+    ASSERT_NEAR(lambda, 3, 1e-4);
+    
+    ENDSECT;
+    /* end of Example 4 */
+    /* ===================================================================== */
+    
+    /* ===================================================================== */
     /* problem 9.2.1a */
     SECTION("problem 9.2.1a");
+    
+    double lambda_power;
     
     A   <<  2   <<  1   <<  1   <<  endr
         <<  1   <<  2   <<  1   <<  endr
@@ -125,17 +167,18 @@ int main()
     x_o << 1 << -1 << 2;
     
     cout << "A = " << endl << A << endl
-         << "x_o = " << endl << x_o << endl << endl;
-    x = x_o; /* initialize x to x_o, iterate three times */
+         << "x = " << endl << x_o << endl << endl;
+    
+    x = x_o;
     for (unsigned int iter = 0; iter < 3; iter++)
     {   
         /* perform a single iteration, make sure lambda <> 0 */
-        tie (x, lambda, err, has_converged) = power_method(A, x, 1e-9, 1);
-        assert(lambda != 0);
+        tie (x, lambda_power, err, has_converged) = power_method(A, x, 1e-9, 1);
+        assert(lambda_power != 0);
         
         cout << "iteration: " << iter+1 << endl;
         cout << "err: " << err << endl;
-        cout << "lambda_max: " << lambda << endl;
+        cout << "lambda_max: " << lambda_power << endl;
         cout << "x: " << endl << x << endl;
         cout << endl;
     }
@@ -183,12 +226,12 @@ int main()
     x_o << 1 << -1 << 2;
          
     /* perform 25 iterations or when error < 1e-4, make sure lambda <> 0 */
-    tie (x, lambda, err, has_converged) = power_method(A, x_o, 1e-4, 25);
-    assert(lambda != 0);
+    tie (x, lambda_power, err, has_converged) = power_method(A, x_o, 1e-4, 25);
+    assert(lambda_power != 0);
     
     cout << "has converged?: " << ((has_converged) ? "yes" : "no") << endl;
     cout << "err: " << err << endl;
-    cout << "lambda_max: " << lambda << endl;
+    cout << "lambda_max: " << lambda_power << endl;
     cout << "x: " << endl << x << endl;
     cout << endl;
     
@@ -223,7 +266,7 @@ int main()
     
     /* ===================================================================== */
     /* problem 9.2.13a */
-    SECTION("problem 9.2.9a");
+    SECTION("problem 9.2.13a");
     
     A   <<  2   <<  1   <<  1   <<  endr
         <<  1   <<  2   <<  1   <<  endr
@@ -235,7 +278,7 @@ int main()
     vec x_Rminus1(2);
     x_Rminus1 << 1 << 1;
     
-    double approx_lambda = lambda; /* use results from inverse power method */
+    double approx_lambda = lambda_power; /* use results from power method */
          
     cout << "A = " << endl << A << endl
          << "v = " << endl << x_o << endl

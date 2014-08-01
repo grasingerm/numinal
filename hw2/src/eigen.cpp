@@ -149,13 +149,14 @@ iterative_solution_t inverse_power_method
  * @param max_iterations Maximum number of iterations to perform
  * @return Approximate eigenvector, approximate eigenvalue, error, has converged
  */
+#include <iostream>
 iterative_solution_t wielandt_deflation
     (const mat& A, const vec& v, const vec& x, const double lambda, 
     const double tol, const unsigned int max_iterations)
 {
     bool has_converged;
     double mu, err, sum;
-    vec w, u(v.n_rows);
+    vec w(v.n_rows), w_pr, u(v.n_rows);
     unsigned int row, col;
     mat B(A.n_rows-1, A.n_cols-1);
     
@@ -165,7 +166,7 @@ iterative_solution_t wielandt_deflation
         for (unsigned int k = 0; k < row; k++)
             for (unsigned int j = 0; j < row; j++)
                 B(k,j) = A(k,j) - v(k)/v(row) * A(row,j);
-                
+           
     if (row != 0 && row != v.n_rows-1)
         for (unsigned int k = row; k < v.n_rows-1; k++)
             for (unsigned int j = 0; j < row; j++)
@@ -173,19 +174,22 @@ iterative_solution_t wielandt_deflation
                 B(k,j) = A(k+1,j) - v(k+1)/v(row) * A(row,j);
                 B(j,k) = A(j,k+1) - v(j)/v(row) * A(row,k+1);
             }
-            
+         
     if (row != v.n_rows-1)
         for (unsigned int k = row; k < v.n_rows-1; k++)
             for (unsigned int j = row; j < v.n_rows-1; j++)
                 B(k,j) = A(k+1,j+1) - v(k+1)/v(row)*A(row,j+1);
     
     /* this line will need changed if iterative_solution_t changes */      
-    std::tie (w, mu, err, has_converged) =
+    std::tie (w_pr, mu, err, has_converged) =
          power_method(B, x, tol, max_iterations);
     
-    /* TODO: what is the purpose of this step? */     
+    /* TODO: what is the purpose of this step? */
+    if (row != 0) for (unsigned int k = 0; k < row; k++) w(k) = w_pr(k);
     w(row) = 0;
-    
+    if (row != w.n_rows) 
+        for (unsigned int k = row+1; k < w.n_rows; k++) w(k) = w_pr(k-1);
+        
     /* calculate this once as it does not change in inner loop */
     sum = 0;
     for (unsigned int i = 0; i < w.n_rows; i++) sum += A(row,i)*w(i);
