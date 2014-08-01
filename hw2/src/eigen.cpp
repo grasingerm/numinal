@@ -1,5 +1,6 @@
 #include <cmath>
 #include <cstdlib>
+#include <algorithm>
 #include "eigen.hpp"
 #include "direct_methods.hpp"
 
@@ -95,6 +96,7 @@ iterative_solution_t power_method_d2
 
 /**
  * Approximate an eigenvalue and an associated eigenvector
+ * @wrapper Chooses between the two solution methods based on system size
  *
  * @param A N x N matrix
  * @param x Initial guess at eigenvector
@@ -105,12 +107,92 @@ iterative_solution_t power_method_d2
 iterative_solution_t inverse_power_method
     (const mat& A, vec x, const double tol, const unsigned int max_iterations)
 {
-    bool has_converged = false;
+    unsigned int n = A.n_rows;
+    
+    if (n*n*n/3. <= 2*n*n) /* determine which solution method is more eff. */
+        return inverse_power_method
+            (A, x, tol, max_iterations, lin_solver::gauss_elim_wpp);
+    
+    return inverse_power_method
+        (A, x, tol, max_iterations, lin_solver::lu_decomp);
+}
+
+/**
+ * Approximate an eigenvalue and an associated eigenvector
+ * @wrapper Chooses between the two solution methods based on system size
+ *
+ * @param A N x N matrix
+ * @param x Initial guess at eigenvector
+ * @param tol Error tolerance
+ * @param max_iterations Maximum number of iterations to perform
+ * @return Approximate eigenvector, approximate eigenvalue, error, has converged
+ */
+iterative_solution_t inverse_power_method
+    (const mat& A, vec x, const double tol, const unsigned int max_iterations,
+    lin_solver::lu_solution_t lin_solution_type)
+{
+    /* set up data structures */
+    bool has_converged = false, factor_success;
     vec y;
     mat result(1,1);
     unsigned int row, col;
     double y_p, err;
-    double q;
+    double q = lin_solution_type; /* suppress unused variable warnings */
+    
+    mat I(A.n_rows, A.n_cols);
+    I.eye();
+    mat L, U;
+    
+    /* perform LU factorization */
+    std::tie (L, U, factor_success) = lu_doolittle(A);
+    if (!factor_success) 
+        return iterative_solution_t (x, 0, 1e20, factor_success);
+    
+    /* calculate q */
+    result = (x.t() * L*U * x / (x.t() * x)); /* x'Ax/x'x */
+    q = result(0,0);
+    
+    /* x/x_p */
+    norm_linf(x, row, col);
+    x /= x(row);
+    for (unsigned int iteration = 0; iteration < max_iterations; iteration++)
+    {
+        y = lu_fb_subs(L, U - q*I, x);
+        
+        /* find p so that |y_p| = ||y||_inf */
+        norm_linf(y, row, col);
+        y_p = y(row);
+        
+        err = norm_linf(x - y/y_p, row, col);
+        x = y/y_p;
+        
+        has_converged = (err < tol) ? true : false;
+        if (has_converged) break;
+    }
+    
+    return iterative_solution_t (x, 1/y_p + q, err, has_converged);
+}
+
+/**
+ * Approximate an eigenvalue and an associated eigenvector
+ * @wrapper Chooses between the two solution methods based on system size
+ *
+ * @param A N x N matrix
+ * @param x Initial guess at eigenvector
+ * @param tol Error tolerance
+ * @param max_iterations Maximum number of iterations to perform
+ * @return Approximate eigenvector, approximate eigenvalue, error, has converged
+ */
+iterative_solution_t inverse_power_method
+    (const mat& A, vec x, const double tol, const unsigned int max_iterations,
+    lin_solver::gausselimpp_solution_t lin_solution_type)
+{
+    bool has_converged = false, elim_success;
+    vec y;
+    mat result(1,1);
+    unsigned int row, col;
+    double y_p, err;
+    double q = lin_solution_type; /* suppress unused variable warnings */
     
     mat I(A.n_rows, A.n_cols);
     I.eye();
@@ -123,7 +205,9 @@ iterative_solution_t inverse_power_method
     x /= x(row);
     for (unsigned int iteration = 0; iteration < max_iterations; iteration++)
     {
-        y = solve_gauss_elim_wpp(A - q*I, x);
+        std::tie (y, elim_success) = solve_gauss_elim_wpp(A - q*I, x);
+        if (!elim_success)    /* TODO: consider throwing exception here? */
+            return iterative_solution_t (x, 0, 1e20, elim_success);
         
         /* find p so that |y_p| = ||y||_inf */
         norm_linf(y, row, col);
@@ -149,7 +233,6 @@ iterative_solution_t inverse_power_method
  * @param max_iterations Maximum number of iterations to perform
  * @return Approximate eigenvector, approximate eigenvalue, error, has converged
  */
-#include <iostream>
 iterative_solution_t wielandt_deflation
     (const mat& A, const vec& v, const vec& x, const double lambda, 
     const double tol, const unsigned int max_iterations)
@@ -200,7 +283,139 @@ iterative_solution_t wielandt_deflation
     return iterative_solution_t (u, mu, err, has_converged);
 }
 
+/**
+ * Approximate eigenvalues by QR method
+ *
+ * @param a Main diagonal by reference
+ * @param b Subdiagonals by reference
+ * @param tol Error tolerance
+ * @param max_iterations Maximum number of iterations
+ * @return (vector of eigenvalues, index to split, successful?)
+ */
+qr_solution_t qr_method
+    (vec a, vec b, const double tol, const unsigned int max_iterations)
+{
+    return qr_method_Mut(a, b, tol, max_iterations);
+}
+
+/**
+ * Approximate eigenvalues by QR method @mutator
+ *
+ * @param a Main diagonal by reference
+ * @param b Subdiagonals by reference
+ * @param tol Error tolerance
+ * @param max_iterations Maximum number of iterations
+ * @return (vector of eigenvalues, index to split, successful?)
+ */
+qr_solution_t qr_method_Mut
+    (vec& a, vec& b, const double tol, const unsigned int max_iterations)
+{
+    bool success = false;
+    unsigned int n = a.n_rows;
+    vector<double> lambdas(n);
+    double shift = 0;
+    double c1, c2, c3, mu1, mu2, sigma;
+    vec d(n), x(n), y(n), z(n), c(n), s(n), q(n);
+    
+    for (unsigned int k = 0; k < max_iterations; k++)
+    {
+        if (fabs(b(n-1)) <= tol)
+        {
+            lambdas.push_back(a(n-1)+shift);
+            n--;
+        }
+        
+        if (fabs(b(1)) <= tol)
+        {
+            lambdas.push_back(a(0)+shift);
+            n--;
+            a(0) = a(1);
+            for (unsigned int j = 1; j < n; j++)
+            {
+                a(j) = a(j+1);
+                b(j) = b(j+1);
+            }
+        }
+        
+        if (n == 0) break;
+        
+        if (n == 1)
+        {
+            lambdas.push_back(a(0)+shift);
+            break;
+        }
+        
+        for (unsigned int j = 2; j < n-1; j++)
+            if (fabs(b(j)) <= tol)
+                return qr_solution_t (lambdas, j, false);
+                
+        c1 = -(a(n-2)+a(n-1));
+        c2 = a(n-1)*a(n-2) - b(n-1)*b(n-1);
+        c3 = sqrt(c1*c1 - 4*c2);
+        
+        if (c1 > 0)
+        {
+            mu1 = -2*c2 / (c1+c3);
+            mu2 = -(c1+c3)/2.;
+        }
+        else
+        {
+            mu1 = (c3-c1)/2.;
+            mu2 = 2*c2/(c3-c1);
+        }
+        
+        if (n == 2)
+        {
+            lambdas.push_back(mu1+shift);
+            lambdas.push_back(mu2+shift);
+            break;
+        }
+        
+        /* calculate shift */
+        sigma = std::min(fabs(mu1-a(n-1)), fabs(mu2-a(n-1))) + a(n-1);
+        assert(fabs(sigma-a(n-1)) == std::min(fabs(mu1-a(n-1)), fabs(mu2-a(n-1)));
+        
+        shift += sigma;
+        
+        /* perform shift */
+        for (unsigned int j = 0; j < n; j++) d(j) = a(j) - sigma;
+        x(0) = d(0);
+        y(0) = b(1);
+        
+        /* compute Aj = Pj*Aj-1 and Rk=Ank */
+        for (unsigned int j = 1; j < n; j++)
+        {
+            z(j-1) = sqrt(x(j-1)*x(j-1) + b(j)*b(j))
+            c(j) = x(j-1)/z(j-1);
+            s(j) = b(j)/z(j-1);
+            q(j-1) = c(j)*y(j-1) + s(j)*d(j)
+            x(j) = -s(j)*y(j-1) + c(j)*d(j);
+            if (j != n-1)
+            {
+                r(j-1) = s(j)*b(j+1);
+                y(j) = c(j)*b(j+1);
+            }
+        }
+        
+        z(n-1) = x(n-1);
+        a(0) = s(1)*q(0) + c(1)*z(0);
+        b(1) = s(1)*z(1);
+        
+        for (unsigned int j = 1; j < n-1; j++)
+        {
+            a(j) = s(j+1)*q(j) + c(j)*c(j+1)*z(j);
+            b(j+1) = s(j+1)*z(j+1);
+        }
+        
+        a(n-1) = c(n-1)*z(n-1);
+    }
+    
+    success = (k+1 == max_iterations) ? true : false;
+    return qr_solution_t (lambdas, 0, success);
+}
+
 } /* namespace eigen */
+/* ========================================================================= */
 
 /**
  * Non-mutating wrapper of Householder transformation @see householder_Mut

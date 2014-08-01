@@ -96,7 +96,8 @@ int main()
     {   
         /* perform n iterations, make sure lambda <> 0 */
         tie (x, lambda, err, has_converged) = 
-            inverse_power_method(A, x_o, 1e-9, iter+1);
+            inverse_power_method
+                (A, x_o, 1e-9, iter+1, lin_solver::gauss_elim_wpp);
         assert(lambda != 0);
         
         cout << "iteration: " << iter+1 << endl;
@@ -108,6 +109,14 @@ int main()
         /* check values against those given in the textbook */
         ASSERT_NEAR(lambda, lambda_expect[iter], 1e-2);
         ASSERT_NEAR(x(1), x2_expect[iter], 1e-2); /* within 1% ... */
+        
+        /* TODO: REWRITE INVERSE POWER METHOD WITH LU DECOMPOSITION */
+        //tie (x, lambda, err, has_converged) = 
+        //    inverse_power_method(A, x_o, 1e-9, iter+1, lin_solver::lu_decomp);
+            
+        /* check values against those given in the textbook */
+        //ASSERT_NEAR(lambda, lambda_expect[iter], 1e-2);
+        //ASSERT_NEAR(x(1), x2_expect[iter], 1e-2); /* within 1% ... */
     }
     
     ENDSECT;
@@ -201,7 +210,8 @@ int main()
     {   
         /* perform a n iterations, make sure lambda <> 0 */
         tie (x, lambda, err, has_converged) = 
-            inverse_power_method(A, x_o, 1e-9, iter+1);
+            inverse_power_method
+                (A, x_o, 1e-9, iter+1, lin_solver::gauss_elim_wpp);
         assert(lambda != 0);
         
         cout << "iteration: " << iter+1 << endl;
@@ -251,7 +261,7 @@ int main()
          
     /* perform 25 iterations or when error < 1e-4, make sure lambda <> 0 */
     tie (x, lambda, err, has_converged) = 
-        inverse_power_method(A, x_o, 1e-4, 25);
+        inverse_power_method(A, x_o, 1e-4, 25, lin_solver::gauss_elim_wpp);
     assert(lambda != 0);
     
     cout << "has converged?: " << ((has_converged) ? "yes" : "no") << endl;

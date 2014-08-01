@@ -13,17 +13,17 @@ using namespace arma;
  * @param A Linear system of equations
  * @param b Linear system solutions
  */
-void gauss_elim_wpp_Mut(mat &A, vec &b)
+bool gauss_elim_wpp_Mut(mat &A, vec &b)
 {
-    unsigned int row;
+    unsigned int row, n = A.n_rows; /* check for square matrix */
     double max, val, mult;
 
-    for (unsigned int i = 0; i < A.n_rows; i++)
+    for (unsigned int i = 0; i < n; i++)
     {
         /* find pivot point */
         row = i;
         max = -1; // arbitrary number less than zero
-        for (unsigned int j = i; j < A.n_cols; j++)
+        for (unsigned int j = i; j < n; j++)
         {
             val = fabs(A(j,i));
             if (val > max)
@@ -32,26 +32,28 @@ void gauss_elim_wpp_Mut(mat &A, vec &b)
                 row = j;
             }
             
-            /* sanity check */
-            /* TODO: implement real error checking */
-            assert(A(row,i) != 0);
+            /* no unique solution exists */
+            if (A(row,i) == 0) return false;
         }
         
         /* row interchange */
         if (i != row)
             /* swap rows i and "row" */
-            for (unsigned int k = 0; k < A.n_cols; k++)
+            for (unsigned int k = 0; k < n; k++)
                 std::swap(A(i,k), A(row,k));
         std::swap(b(i), b(row));
         
         /* elimination */
-        for (unsigned int j = i+1; j < A.n_cols; j++)
+        for (unsigned int j = i+1; j < n; j++)
         {
             mult = A(j,i)/A(i,i);
             A.row(j) -= mult * A.row(i);
             b(j) -= mult * b(i);
         }
     }
+    
+    /* was gaussian elimination successful? */
+    return (A(n-1,n-1) != 0) ? true : false;
 }
 
 /**
@@ -87,74 +89,74 @@ vec backward_subs(const mat& A, const vec& b)
  * @param b Linear system of solutions
  * @return x X values
  */
-vec solve_gauss_elim_wpp(mat A, vec b)
+gauss_elim_t solve_gauss_elim_wpp(mat A, vec b)
 {
-    gauss_elim_wpp_Mut(A, b);
-    return backward_subs(A, b);
+    bool gesuccess = gauss_elim_wpp_Mut(A, b);
+    if (gesuccess) return gauss_elim_t (backward_subs(A, b), gesuccess);
+ 
+    vec empty;   
+    return gauss_elim_t (empty, gesuccess);
 }
 
 /**
- * Factors a sys of equations into U and L matrices; mutates original sys
- * @mutator
- * 
- * @param A System of linear equations, factors into U
- * @return L Lower diagonal matrix
+ * Factors a sys of equations into U and L matrices
+ *
+ * @param A System of linear equations
+ * @return (Lower diagonal matrix, Upper diagonal matrix)
  */
-std::array<mat,2> lu_mdoolittle_Mut(mat A)
+lu_factor_t lu_doolittle(const mat &A)
 {
-    double m_ji;
+    unsigned int n = A.n_rows; // TODO: error check/report if n != m
+    mat L(n,n), U(n,n);
+    double sum;
     
     /* start L as identity matrix */
     L.eye();
+    U.zeros();
     
-    for (unsigned int i = 0; i < A.n_rows; i++)
+    /* Select L11 and U11 satsifying L11U11 = A11 */
+    if (A(0,0) == 0) return lu_factor_t (L, U, false);
+    U(0,0) = A(0,0);
+    
+    for (unsigned int i = 1; i < n; i++) 
     {
-        // if (!A(i, i)) return FACTORIZATION_FAILURE;
-        /* perform elimination */
-        for (unsigned int j = i+1; j < A.n_rows; j++)
+        U(0,i) = A(0,i);
+        L(i,0) = A(i,0)/U(0,0);
+    }
+    
+    for (unsigned int i = 1; i < n-1; i++)
+    {
+        // if Aii - sum(Lik * Uki) == 0 -> impossible
+        //if (A(i, i) == 0) return lu_factor_t (L, U, false);
+        
+        for (unsigned int j = i; j < n; j++)
         {
-            m_ji = A(j, i)/A(i, i);
-            A.row(j) -= m_ji * A.row(i);
-            L(j, i) = m_ji;
+            sum = 0;
+            for (unsigned int k = 0; k < i; k++) sum += L(i,k)*U(k,j);
+            U(i,j) = A(i,j) - sum;
+            
+            sum = 0;
+            for (unsigned int k = 0; k < i; k++) sum += L(j,k)*U(k,i);
+            L(j,i) = (A(j,i)-sum)/U(i,i);
         }
     }
     
-    return std::array<L,U>;
-}
-
-/**
- * Factors a sys of equations into U and L matrices; mutates original sys
- * 
- * @param A System of linear equations, factors into U
- * @return (Upper diagonal matrix, Lower diagonal matrix)
- */
-mat lu_mdoolittle_Mut(mat &A)
-{
-    double m_ji;
+    sum = 0;
+    for (unsigned int i = 0; i < n-1; i++) sum += L(n-1,i)*U(i,n-1);
+    U(n-1,n-1) = A(n-1,n-1) - sum;
     
-    /* start L as identity matrix */
-    L.eye();
-    
-    for (unsigned int i = 0; i < A.n_rows; i++)
-    {
-        // if (!A(i, i)) return FACTORIZATION_FAILURE;
-        /* perform elimination */
-        for (unsigned int j = i+1; j < A.n_rows; j++)
-        {
-            m_ji = A(j, i)/A(i, i);
-            A.row(j) -= m_ji * A.row(i);
-            L(j, i) = m_ji;
-        }
-    }
-    
-    return L;
+    return lu_factor_t (L, U, true);
 }
 
 /** 
  * Solve system of equations using LU factoriztion
+ *
+ * @param L Lower diagonal matrix of decomposition
+ * @param U Upper diagonal matrix of decomposition
+ * @param b Solution vector of system of equations
+ * @return x X values
  */
- 
-vec lu_fb_subs(const mat &L, const mat &U, const vec &b)
+vec lu_fb_subs(const mat& L, const mat& U, const vec& b)
 {
     vec y(L.n_rows), x(L.n_rows);   // intense use of heap?
     double sum;
