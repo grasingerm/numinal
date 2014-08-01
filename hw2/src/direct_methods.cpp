@@ -33,6 +33,7 @@ void gauss_elim_wpp_Mut(mat &A, vec &b)
             }
             
             /* sanity check */
+            /* TODO: implement real error checking */
             assert(A(row,i) != 0);
         }
         
@@ -90,4 +91,95 @@ vec solve_gauss_elim_wpp(mat A, vec b)
 {
     gauss_elim_wpp_Mut(A, b);
     return backward_subs(A, b);
+}
+
+/**
+ * Factors a sys of equations into U and L matrices; mutates original sys
+ * @mutator
+ * 
+ * @param A System of linear equations, factors into U
+ * @return L Lower diagonal matrix
+ */
+std::array<mat,2> lu_mdoolittle_Mut(mat A)
+{
+    double m_ji;
+    
+    /* start L as identity matrix */
+    L.eye();
+    
+    for (unsigned int i = 0; i < A.n_rows; i++)
+    {
+        // if (!A(i, i)) return FACTORIZATION_FAILURE;
+        /* perform elimination */
+        for (unsigned int j = i+1; j < A.n_rows; j++)
+        {
+            m_ji = A(j, i)/A(i, i);
+            A.row(j) -= m_ji * A.row(i);
+            L(j, i) = m_ji;
+        }
+    }
+    
+    return std::array<L,U>;
+}
+
+/**
+ * Factors a sys of equations into U and L matrices; mutates original sys
+ * 
+ * @param A System of linear equations, factors into U
+ * @return (Upper diagonal matrix, Lower diagonal matrix)
+ */
+mat lu_mdoolittle_Mut(mat &A)
+{
+    double m_ji;
+    
+    /* start L as identity matrix */
+    L.eye();
+    
+    for (unsigned int i = 0; i < A.n_rows; i++)
+    {
+        // if (!A(i, i)) return FACTORIZATION_FAILURE;
+        /* perform elimination */
+        for (unsigned int j = i+1; j < A.n_rows; j++)
+        {
+            m_ji = A(j, i)/A(i, i);
+            A.row(j) -= m_ji * A.row(i);
+            L(j, i) = m_ji;
+        }
+    }
+    
+    return L;
+}
+
+/** 
+ * Solve system of equations using LU factoriztion
+ */
+ 
+vec lu_fb_subs(const mat &L, const mat &U, const vec &b)
+{
+    vec y(L.n_rows), x(L.n_rows);   // intense use of heap?
+    double sum;
+
+    /* start forward substitution */
+    y(0) = b(0);
+    
+    for (unsigned int i = 0; i < L.n_rows; i++)
+    {
+        sum = 0;
+        for (int j = i-1; j >= 0; j--)
+            sum += L(i, j) * y(j);
+        y(i) = b(i) - sum;
+    }
+    
+    /* backward substitution */
+    x(L.n_rows-1) = y(U.n_rows-1) / U(U.n_rows-1, U.n_cols-1);
+    
+    for (int i = L.n_rows-2; i >= 0; i--)
+    {
+        sum = 0;
+        for (unsigned int j = i+1; j < U.n_rows; j++)
+            sum += U(i, j) * x(j);
+        x(i) = (y(i) - sum) / U(i, i);
+    }
+    
+    return x;
 }
