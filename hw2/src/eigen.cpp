@@ -1,5 +1,6 @@
 #include <cmath>
 #include <cstdlib>
+#include <cassert>
 #include <algorithm>
 #include "eigen.hpp"
 #include "direct_methods.hpp"
@@ -311,13 +312,13 @@ qr_solution_t qr_method_Mut
     (vec& a, vec& b, const double tol, const unsigned int max_iterations)
 {
     bool success = false;
-    unsigned int n = a.n_rows;
-    vector<double> lambdas(n);
+    unsigned int n = a.n_rows, k;
+    std::vector<double> lambdas;
     double shift = 0;
     double c1, c2, c3, mu1, mu2, sigma;
-    vec d(n), x(n), y(n), z(n), c(n), s(n), q(n);
+    vec d(n), x(n), y(n), z(n), c(n), s(n), q(n), r(n);
     
-    for (unsigned int k = 0; k < max_iterations; k++)
+    for (k = 0; k < max_iterations; k++)
     {
         if (fabs(b(n-1)) <= tol)
         {
@@ -373,7 +374,7 @@ qr_solution_t qr_method_Mut
         
         /* calculate shift */
         sigma = std::min(fabs(mu1-a(n-1)), fabs(mu2-a(n-1))) + a(n-1);
-        assert(fabs(sigma-a(n-1)) == std::min(fabs(mu1-a(n-1)), fabs(mu2-a(n-1)));
+        assert(fabs(sigma-a(n-1)) == std::min(fabs(mu1-a(n-1)), fabs(mu2-a(n-1))));
         
         shift += sigma;
         
@@ -385,10 +386,10 @@ qr_solution_t qr_method_Mut
         /* compute Aj = Pj*Aj-1 and Rk=Ank */
         for (unsigned int j = 1; j < n; j++)
         {
-            z(j-1) = sqrt(x(j-1)*x(j-1) + b(j)*b(j))
+            z(j-1) = sqrt(x(j-1)*x(j-1) + b(j)*b(j));
             c(j) = x(j-1)/z(j-1);
             s(j) = b(j)/z(j-1);
-            q(j-1) = c(j)*y(j-1) + s(j)*d(j)
+            q(j-1) = c(j)*y(j-1) + s(j)*d(j);
             x(j) = -s(j)*y(j-1) + c(j)*d(j);
             if (j != n-1)
             {
@@ -410,7 +411,7 @@ qr_solution_t qr_method_Mut
         a(n-1) = c(n-1)*z(n-1);
     }
     
-    success = (k+1 == max_iterations) ? true : false;
+    success = (k+1 == max_iterations) ? false : true;
     return qr_solution_t (lambdas, 0, success);
 }
 

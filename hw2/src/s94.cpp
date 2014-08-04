@@ -51,7 +51,10 @@ int main()
     cout << "a = " << endl << a << endl << "b = " << endl << b << endl;
     tie (lambdas, index, success) = qr_method(a, b, 1e-5, 1e6);
     
-    cout << "eigenvalues: " << endl << lambdas << endl;
+    cout << "eigenvalues: ";
+    for (auto lambda : lambdas) cout << lambda << " ";
+    cout << endl;
+    cout << "success?: " << ((success) ? "yes" : "no") << endl;
     
     ENDSECT;
     /* end of problem 9.4.4a */
