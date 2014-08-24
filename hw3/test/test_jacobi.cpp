@@ -82,4 +82,30 @@ int main()
     
     cout << "... test passed." << endl;
     ENDSECT;
+    
+    SECTION("example 7.3.3, pg 447");
+    mat::fixed<3,3> A_3;
+    A_3     <<      4       <<      3       <<      0       <<     endr
+            <<      3       <<      4       <<      -1      <<     endr
+            <<      0       <<      -1      <<      4       <<     endr;
+            
+    vec::fixed<3> b_3;
+    b_3     << 24 << 30 << -24;
+    
+    vec::fixed<3> x_exp_3;
+    x_exp_3 << 3 << 4 << -5;
+    
+    vec x_3;
+    
+    tie (x_3, has_converged) = gauss_seidel(A_3, b_3, 1e-7, 14, 1.25);
+    
+    cout << "x = " << endl << x_3 << endl;
+    
+    SUBSECT("testing against textbook values...");
+    assert(has_converged);
+    for (unsigned int i = 0; i < x_3.n_rows; i++)
+        ASSERT_NEAR(x_3(i), x_exp_3(i), 1e-7);
+    cout << "... test passed." << endl;
+        
+    ENDSECT;
 }

@@ -10,16 +10,26 @@
 
 typedef std::tuple<arma::vec,bool> iter_soln_t;
 
+/* jacobi iterative method */
 iter_soln_t jacobi
     (const arma::mat&, const arma::vec&, arma::vec, const double, 
     const unsigned int);
 iter_soln_t jacobi
     (const arma::mat&, const arma::vec&, const double, const unsigned int);
+    
+/* gauss seidel iterative method */
 iter_soln_t gauss_seidel
     (const arma::mat&, const arma::vec&, arma::vec, const double, 
     const unsigned int);
 iter_soln_t gauss_seidel
     (const arma::mat&, const arma::vec&, const double, const unsigned int);
+/* gauss seidel with relaxation */
+iter_soln_t gauss_seidel
+    (const arma::mat&, const arma::vec&, arma::vec, const double, 
+    const unsigned int, const double);
+iter_soln_t gauss_seidel
+    (const arma::mat&, const arma::vec&, const double, const unsigned int,
+    const double);
     
 void reorder_for_jacobi_M(arma::mat&, arma::vec&);
 std::tuple<arma::mat,arma::vec> reorder_for_jacobi(arma::mat, arma::vec);
