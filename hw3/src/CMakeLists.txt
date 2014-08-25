@@ -20,11 +20,7 @@ set(CMAKE_BINARY_DIR build)
 set(EXECUTABLE_OUTPUT_PATH bin)
 
 # include and link directories
-# 
-# i.e. ...
-# include_directories(../src)
-# include_directories(../../share)
-# link_directories(../src)
+include_directories(../../share)
 
 # dependencies
 add_executable(hw3 main.cpp)
