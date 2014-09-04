@@ -43,13 +43,9 @@ mat create_grid_rectangle(const unsigned int m, const unsigned int n,
 int main()
 {
     const double delta = 0.01;
-
     double h;
-    for (unsigned int i = 6; i < 32; i+=2)
-    {
-        h = 1./i;
-        cout << "A = " << endl << create_grid_rectangle(i, i, h, delta) << endl;
-    }
+    
+    
 
     return 0;
 }

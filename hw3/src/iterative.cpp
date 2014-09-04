@@ -220,3 +220,21 @@ std::tuple<mat, vec> reorder_for_jacobi(mat A, vec b)
     reorder_for_jacobi_M(A, b);
     return std::tuple<mat, vec> (A, b);    
 }
+
+/**
+ * Solve a system of equations by the gauss-seidel iterative method
+ *
+ * @param A Matrix of equations
+ * @param b Solutions of equations
+ * @param inv_C Inverse of the conditioning matrix "C"
+ * @param x_o Initial guess of x vector
+ * @param tol Error tolerance
+ * @param max_iter Maximum number of iterations
+ * @return tuple(x values, has converged?)
+ */
+iter_soln_t conj_grad
+    (const arma::mat& A, const arma::vec& b, const arma::mat& inv_C, 
+    const arma::vec& x_o, const double tol, const unsigned int max_iter)
+{
+    return 0;
+}
