@@ -27,13 +27,15 @@ include_directories(../../share)
 
 # dependencies
 add_executable(test_jacobi test_jacobi.cpp ../src/iterative.cpp)
+add_executable(test_conj_grad_sd test_conj_grad_sd.cpp ../src/iterative.cpp)
 
 # link libraries
 target_link_libraries(test_jacobi armadillo)
+target_link_libraries(test_conj_grad_sd armadillo)
 
 # uncomment if using the standard c math library
 # if (UNIX)
 #     target_link_libraries(some_executable m)
 # endif (UNIX)
 
-install(TARGETS test_jacobi DESTINATION bin)
+install(TARGETS test_jacobi test_conj_grad_sd DESTINATION bin)

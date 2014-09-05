@@ -35,8 +35,14 @@ void reorder_for_jacobi_M(arma::mat&, arma::vec&);
 std::tuple<arma::mat,arma::vec> reorder_for_jacobi(arma::mat, arma::vec);
 
 /* conjugate gradient method */
-iter_soln_t conj_grad
-    (const arma::mat&, const arma::vec&, const arma::mat&, const arma::vec&,
-    const unsigned int, const double);
+iter_soln_t conj_grad_precond
+    (const arma::mat&, const arma::vec&, const arma::mat&, arma::vec,
+    const double, const unsigned int);
+iter_soln_t conj_grad_steepest_desc
+    (const arma::mat&, const arma::vec&, arma::vec,
+    const double, const unsigned int);
+
+/* TODO: reconsider naming convention, prepend all solution functions perhaps?*/
+arma::mat conj_grad_precond_mat_jacobi(const arma::vec&);
 
 #endif /* __ITERATIVE_HPP__ */

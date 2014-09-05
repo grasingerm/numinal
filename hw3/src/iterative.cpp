@@ -7,12 +7,12 @@ using namespace arma;
 /**
  * Solve a system of equations by the jacobi iterative method
  *
- * @param A Matrix of equations
- * @param b Solutions of equations
- * @param x_o Initial guess at x values
- * @param tol Error tolerance
- * @param max_iter Maximum number of iterations
- * @return tuple(x values, has converged?)
+ * \param A Matrix of equations
+ * \param b Solutions of equations
+ * \param x_o Initial guess at x values
+ * \param tol Error tolerance
+ * \param max_iter Maximum number of iterations
+ * \return tuple(x values, has converged?)
  */
 iter_soln_t jacobi
     (const mat& A, const vec& b, vec x_o, const double tol, 
@@ -45,11 +45,11 @@ iter_soln_t jacobi
 /**
  * Solve a system of equations by the jacobi iterative method
  *
- * @param A Matrix of equations
- * @param b Solutions of equations
- * @param tol Error tolerance
- * @param max_iter Maximum number of iterations
- * @return tuple(x values, has converged?)
+ * \param A Matrix of equations
+ * \param b Solutions of equations
+ * \param tol Error tolerance
+ * \param max_iter Maximum number of iterations
+ * \return tuple(x values, has converged?)
  */
 iter_soln_t jacobi
     (const mat& A, const vec& b, const double tol, const unsigned int max_iter)
@@ -63,12 +63,12 @@ iter_soln_t jacobi
 /**
  * Solve a system of equations by the gauss-seidel iterative method
  *
- * @param A Matrix of equations
- * @param b Solutions of equations
- * @param x_o Initial guess at x values
- * @param tol Error tolerance
- * @param max_iter Maximum number of iterations
- * @return tuple(x values, has converged?)
+ * \param A Matrix of equations
+ * \param b Solutions of equations
+ * \param x_o Initial guess at x values
+ * \param tol Error tolerance
+ * \param max_iter Maximum number of iterations
+ * \return tuple(x values, has converged?)
  */
 iter_soln_t gauss_seidel
     (const mat& A, const vec& b, vec x_o, const double tol, 
@@ -101,11 +101,11 @@ iter_soln_t gauss_seidel
 /**
  * Solve a system of equations by the gauss-seidel iterative method
  *
- * @param A Matrix of equations
- * @param b Solutions of equations
- * @param tol Error tolerance
- * @param max_iter Maximum number of iterations
- * @return tuple(x values, has converged?)
+ * \param A Matrix of equations
+ * \param b Solutions of equations
+ * \param tol Error tolerance
+ * \param max_iter Maximum number of iterations
+ * \return tuple(x values, has converged?)
  */
 iter_soln_t gauss_seidel
     (const mat& A, const vec& b, const double tol, const unsigned int max_iter)
@@ -119,13 +119,13 @@ iter_soln_t gauss_seidel
 /**
  * Solve a system of equations by the gauss-seidel iterative method
  *
- * @param A Matrix of equations
- * @param b Solutions of equations
- * @param x_o Initial guess at x values
- * @param tol Error tolerance
- * @param max_iter Maximum number of iterations
- * @param relax Relaxation factor
- * @return tuple(x values, has converged?)
+ * \param A Matrix of equations
+ * \param b Solutions of equations
+ * \param x_o Initial guess at x values
+ * \param tol Error tolerance
+ * \param max_iter Maximum number of iterations
+ * \param relax Relaxation factor
+ * \return tuple(x values, has converged?)
  */
 iter_soln_t gauss_seidel
     (const mat& A, const vec& b, vec x_o, const double tol, 
@@ -158,12 +158,12 @@ iter_soln_t gauss_seidel
 /**
  * Solve a system of equations by the gauss-seidel iterative method
  *
- * @param A Matrix of equations
- * @param b Solutions of equations
- * @param tol Error tolerance
- * @param max_iter Maximum number of iterations
- * @param relax Relaxation factor
- * @return tuple(x values, has converged?)
+ * \param A Matrix of equations
+ * \param b Solutions of equations
+ * \param tol Error tolerance
+ * \param max_iter Maximum number of iterations
+ * \param relax Relaxation factor
+ * \return tuple(x values, has converged?)
  */
 iter_soln_t gauss_seidel
     (const mat& A, const vec& b, const double tol, const unsigned int max_iter,
@@ -176,11 +176,11 @@ iter_soln_t gauss_seidel
 }
 
 /**
- * mutates a system of linear equations for jacobi iterative solution method
- * @mutator
+ * Mutates a system of linear equations for jacobi iterative solution method
+ * \mutator
  *
- * @param A Matrix of system of equations
- * @param b Solution vector
+ * \param A Matrix of system of equations
+ * \param b Solution vector
  */
 void reorder_for_jacobi_M(mat& A, vec& b)
 {
@@ -208,11 +208,11 @@ void reorder_for_jacobi_M(mat& A, vec& b)
 }
 
 /**
- * reorder system of linear equations for jacobi iterative solution method
+ * Reorder system of linear equations for jacobi iterative solution method
  *
- * @param A Matrix of system of equations
- * @param b Solution vector
- * @return tuple(reordered matrix, reordered solution vector)
+ * \param A Matrix of system of equations
+ * \param b Solution vector
+ * \return tuple(reordered matrix, reordered solution vector)
  */
 std::tuple<mat, vec> reorder_for_jacobi(mat A, vec b)
 {
@@ -222,19 +222,90 @@ std::tuple<mat, vec> reorder_for_jacobi(mat A, vec b)
 }
 
 /**
- * Solve a system of equations by the gauss-seidel iterative method
+ * Solve a system of equations by the preconditioned conjugate gradient method
  *
- * @param A Matrix of equations
- * @param b Solutions of equations
- * @param inv_C Inverse of the conditioning matrix "C"
- * @param x_o Initial guess of x vector
- * @param tol Error tolerance
- * @param max_iter Maximum number of iterations
- * @return tuple(x values, has converged?)
+ * \param A Matrix of equations
+ * \param b Solutions of equations
+ * \param inv_C Inverse of the conditioning matrix "C"
+ * \param x_o Initial guess of x vector
+ * \param tol Error tolerance
+ * \param max_iter Maximum number of iterations
+ * \return tuple(x values, has converged?)
  */
-iter_soln_t conj_grad
+iter_soln_t conj_grad_precond
     (const arma::mat& A, const arma::vec& b, const arma::mat& inv_C, 
-    const arma::vec& x_o, const double tol, const unsigned int max_iter)
+    arma::vec x, const double tol, const unsigned int max_iter)
 {
-    return 0;
+    /* initialize data */
+    double t, beta;
+    vec r = b - A*x;
+    vec w = inv_C * r;
+    vec v = inv_C.t() * w;
+    vec u;
+    double alpha = dot(w,w);
+    
+    for (unsigned int iter = 0; iter < max_iter; iter++)
+    {
+        /* check for convergence */
+        if (norm(v) < tol) return iter_soln_t(x, true);
+        
+        u = A*v;
+        t = alpha / dot(v,u);
+        x += t*v;
+        r -= t*u;
+        w = inv_C * r;
+        beta = dot(w,w);
+        
+        if (abs(beta) < tol && norm(r) < tol) return iter_soln_t(x, true);
+        
+        v = inv_C*w + beta/alpha*v;
+        alpha = beta;
+    }
+    
+    return iter_soln_t(x, false);
+}
+
+/**
+ * Solve a system of equations by the steepest descent conjugate gradient method
+ *
+ * \param A Matrix of equations
+ * \param b Solutions of equations
+ * \param x_o Initial guess of x vector
+ * \param tol Error tolerance
+ * \param max_iter Maximum number of iterations
+ * \return tuple(x values, has converged?)
+ */
+iter_soln_t conj_grad_steepest_desc
+    (const arma::mat& A, const arma::vec& b, arma::vec x, const double tol, 
+    const unsigned int max_iter)
+{
+    /* initialize data */
+    double t;
+    vec r = b - A*x;
+    
+    for (unsigned int iter = 0; iter < max_iter; iter++)
+    {
+        /* check for convergence */
+        if (norm(r) < tol) return iter_soln_t(x, true);
+        
+        /* update solution using gradient */
+        t = dot(r,r) / dot(r, A*r);
+        x += t * r;
+        
+        /* compute the residual */
+        r = b - A*x;
+    }
+    
+    return iter_soln_t(x, false);
+}
+
+/**
+ * Create a preconditioning matrix for conjugate gradient by jacobi method
+ *
+ * \param A Matrix of equations
+ * \param Preconditioning matrix
+ */
+arma::mat conj_grad_precond_mat_jacobi(const arma::vec& A)
+{
+    return mat;
 }
