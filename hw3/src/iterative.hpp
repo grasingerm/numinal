@@ -43,6 +43,6 @@ iter_soln_t conj_grad_steepest_desc
     const double, const unsigned int);
 
 /* TODO: reconsider naming convention, prepend all solution functions perhaps?*/
-arma::mat conj_grad_precond_mat_jacobi(const arma::vec&);
+arma::mat precond_mat_jacobi(const arma::vec&);
 
 #endif /* __ITERATIVE_HPP__ */

@@ -300,12 +300,16 @@ iter_soln_t conj_grad_steepest_desc
 }
 
 /**
+ * TODO: how much of the diagonal should be taken? all of the main?
  * Create a preconditioning matrix for conjugate gradient by jacobi method
  *
  * \param A Matrix of equations
  * \param Preconditioning matrix
  */
-arma::mat conj_grad_precond_mat_jacobi(const arma::vec& A)
-{
-    return mat;
+mat precond_mat_jacobi(const arma::vec& A)
+{   
+    mat P(A.n_rows,A.n_cols);
+    P.zeros();
+    P.diag() = A.diag();
+    return P;
 }
