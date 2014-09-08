@@ -40,11 +40,46 @@ int main()
         
     ENDSECT;
     
+    mat inv_cond;
+    
+    SECTION("example 7.3.1, pg 437 using conjugate gradient w/ preconditioning");
+    cout << "A = " << endl << A << endl;
+    cout << "b = " << endl << b << endl;
+    inv_cond = precond_mat_jacobi(A).i();
+    tie (x, has_converged) = conj_grad_precond(A, b, inv_cond, x_o, 1e-3, 500);
+    
+    cout << "x = " << endl << x << endl;
+    
+    SUBSECT("testing against textbook values...");
+    assert(has_converged);
+    for (unsigned int i = 0; i < x.n_rows; i++)
+        ASSERT_NEAR(x(i), x_exp(i), 1e-3);
+    cout << "... test passed." << endl;
+        
+    ENDSECT;
+    
     SECTION("example 7.3.1, pg 437 using conjugate gradient w/ steepest descent");
     cout << "A = " << endl << A << endl;
     cout << "b = " << endl << b << endl;
     
     tie (x, has_converged) = conj_grad_steepest_desc(A, b, x_o, 1e-3, 500);
+    
+    cout << "x = " << endl << x << endl;
+    
+    SUBSECT("testing against textbook values...");
+    assert(has_converged);
+    for (unsigned int i = 0; i < x.n_rows; i++)
+        ASSERT_NEAR(x(i), x_exp(i), 1e-3);
+    cout << "... test passed." << endl;
+        
+    ENDSECT;
+    
+    SECTION("example 7.3.1, pg 437 using conjugate gradient w/ steepest descent");
+    cout << "A = " << endl << A << endl;
+    cout << "b = " << endl << b << endl;
+    
+    inv_cond = precond_mat_jacobi(A).i();
+    tie (x, has_converged) = conj_grad_precond(A, b, inv_cond, x_o, 1e-3, 500);
     
     cout << "x = " << endl << x << endl;
     

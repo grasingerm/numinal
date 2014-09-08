@@ -12,8 +12,8 @@ set(CXX clang)
 set(CMAKE_BUILD_TYPE debug)
 set(CMAKE_C_FLAGS_DEBUG "-Wall -Wextra -g -std=c99 -pedantic -pedantic-errors")
 set(CMAKE_C_FLAGS_RELEASE "-Wall -Wextra -std=c99 -pedantic -pedantic-errors -O3")
-set(CMAKE_CXX_FLAGS_DEBUG "-Wall -Wextra -g -std=c++11 -pedantic -pedantic-errors")
-set(CMAKE_CXX_FLAGS_RELEASE "-Wall -Wextra -std=c++11 -pedantic -pedantic-errors -O3")
+set(CMAKE_CXX_FLAGS_DEBUG "-Wall -Wextra -g -std=c++1y -pedantic -pedantic-errors")
+set(CMAKE_CXX_FLAGS_RELEASE "-Wall -Wextra -std=c++1y -pedantic -pedantic-errors -O3")
 
 # build directories
 set(CMAKE_BINARY_DIR build)
