@@ -74,7 +74,7 @@ int main()
         
     ENDSECT;
     
-    SECTION("example 7.3.1, pg 437 using conjugate gradient w/ steepest descent");
+    SECTION("example 7.3.1, pg 437 using conjugate gradient w/ preconditioning");
     cout << "A = " << endl << A << endl;
     cout << "b = " << endl << b << endl;
     
@@ -107,6 +107,20 @@ int main()
     vec x_3;
     
     tie (x_3, has_converged) = conj_grad_steepest_desc(A_3, b_3, x_o_3, 1e-5, 500);
+    
+    cout << "x = " << endl << x_3 << endl;
+    
+    SUBSECT("testing against textbook values...");
+    assert(has_converged);
+    for (unsigned int i = 0; i < x_3.n_rows; i++)
+        ASSERT_NEAR(x_3(i), x_exp_3(i), 1e-5);
+    cout << "... test passed." << endl;
+        
+    ENDSECT;
+    
+    SECTION("example 7.3.3, pg 447 using conjugate gradient w/ preconditioning");
+    mat P = precond_mat_jacobi(A_3).i();
+    tie (x_3, has_converged) = conj_grad_precond(A_3, b_3, P, x_o_3, 1e-5, 500);
     
     cout << "x = " << endl << x_3 << endl;
     

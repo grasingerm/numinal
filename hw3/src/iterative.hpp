@@ -43,14 +43,15 @@ iter_soln_t conj_grad_steepest_desc
     const double, const unsigned int);
 
 /* TODO: reconsider naming convention, prepend all solution functions perhaps?*/
+
 /**
  * Create a preconditioning matrix for conjugate gradient by jacobi method
  *
  * \param A Matrix of equations
  * \return Preconditioning matrix
  */
-inline arma::mat precond_mat_jacobi(const arma::vec& A)
-{   
+inline arma::mat precond_mat_jacobi(const arma::mat& A)
+{
     return diagmat(A);
 }
 
