@@ -1,5 +1,7 @@
 #include <armadillo>
 #include <iostream>
+#include <fstream>
+#include <string>
 #include "config.hpp"
 #include "iterative.hpp"
 #include "assignment_helpers.hpp"
@@ -23,7 +25,7 @@ mat create_grid_rectangle_helmholtz(const unsigned int m, const unsigned int n,
         {
             unsigned int center = map(i,j);
 
-            A(center, center) = -4-h*h;
+            A(center, center) = -4 - h*h/delta;
             /* TODO: we can rewrite this in a more efficient way. have loop
                         iterate over interior nodes, this way we do not need
                         to do bounds checking 
@@ -71,10 +73,30 @@ mat create_grid_rectangle_laplace(const unsigned int m, const unsigned int n)
  */
 int main()
 {
+    ifstream helm_N16_data("helmholtz_N-16.csv");
+    string line, val; 
+    while (getline(helm_N16_data, line))
+    {
+        // Process str
+    }
+
     const double delta = 0.01;
     double h;
+    mat grid;
     
-    
+    unsigned int n = 16;
+    unsigned int m = n;
+
+    h = 1.0/n;
+ 
+    grid = create_grid_rectangle_helmholtz(m,n,h,delta);
+    vec b(n*m);
+    b.fill(1.*delta); /*!< R(x,y) = 1 */
+
+    do
+    {
+        
+    } while (!has_converged);
 
     return 0;
 }
