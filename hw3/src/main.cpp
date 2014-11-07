@@ -22,24 +22,26 @@ mat create_grid_rectangle_helmholtz(const unsigned int m, const unsigned int n,
 
     auto map = [&] (unsigned int i, unsigned int j) -> 
         unsigned int { return i*n + j; };
+        
+    const auto delta_div_hsq = delta / (h*h);
 
     for (unsigned int i = 0; i < n; i++)
         for (unsigned int j = 0; j < m; j++)
         {
             unsigned int center = map(i,j);
 
-            A(center, center) = -4 - h*h/delta;
+            A(center, center) = -(4*delta_div_hsq + 1);
             /* TODO: we can rewrite this in a more efficient way. have loop
                         iterate over interior nodes, this way we do not need
                         to do bounds checking 
             */
-            if (i < n-1) A(center, map(i+1,j)) = 1;
-            if (j < m-1) A(center, map(i,j+1)) = 1;
-            if (i > 0) A(center, map(i-1,j)) = 1;
-            if (j > 0) A(center, map(i,j-1)) = 1;
+            if (i < n-1) A(center, map(i+1,j)) = delta_div_hsq;
+            if (j < m-1) A(center, map(i,j+1)) = delta_div_hsq;
+            if (i > 0) A(center, map(i-1,j)) = delta_div_hsq;
+            if (j > 0) A(center, map(i,j-1)) = delta_div_hsq;
         }
 
-    return delta/h/h * A; /* delta/h^2 * A */
+    return A;
 }
 
 /*
@@ -74,13 +76,37 @@ mat create_grid_rectangle_laplace(const unsigned int m, const unsigned int n)
 /*
  *
  */
-vec enforce_bcs(const unsigned int m, const unsigned int n, vec x,
-    const double value)
+void enforce_bcs(const unsigned int m, const unsigned int n, mat& A,
+    vec& b, const double value)
 {
-    for (auto i = 0; i < m; i++) x(i) = value;
-    for (auto i = m; i < n*m; i+=m) x(i) = value;
-    for (auto i = 1; i <= m; i++) x(x.n_rows - i) = value;
-    return x;
+    auto map = [&] (unsigned int i, unsigned int j) -> 
+        unsigned int { return i*n + j; };
+
+    for (auto j = 0; j < n; j++)
+    {
+        auto center = map (0, j);
+        (A.row (center)).zeros ();
+        A (center,center) = 1.;
+        b (center) = value;
+        
+        center = map (m-1, j);
+        (A.row (center)).zeros ();
+        A (center,center) = 1.;
+        b (center) = value; 
+    }
+    
+    for (auto i = 0; i < m; i++)
+    {
+        auto center = map (i, 0);
+        (A.row (center)).zeros ();
+        A (center,center) = 1.;
+        b (center) = value;
+        
+        center = map (i, n-1);
+        (A.row (center)).zeros ();
+        A (center,center) = 1.;
+        b (center) = value; 
+    }
 }
 
 /*
@@ -129,6 +155,7 @@ int main()
     grid = create_grid_rectangle_helmholtz(m,n,h,delta);
     vec b(n*m);
     b.fill(1.*delta); /*!< R(x,y) = 1 */
+    enforce_bcs(m, n, grid, b, 0.);
     
     ofstream grid_file;
     grid_file.open("grid_N-16.txt");
@@ -136,7 +163,7 @@ int main()
     grid_file.close();
 
     bool has_converged;
-    vec x(16*16);
+    vec x(m*n);
     x.zeros();
     vector<double> jacobi_error_analytical;
     vector<double> jacobi_error_residual;
@@ -170,7 +197,7 @@ int main()
             name_.open(filename_); \
             name_ << setw(13) << "# iter" << setw(15) << "analytical" \
                        << setw(15) << "residual" << endl; \
-            for (int i = 0; i < a_vector_.size(); i++) \
+            for (auto i = 0; i < a_vector_.size(); i++) \
                 name_ << setw(15) << i << setw(15) << a_vector_[i] \
                            << setw(15) << r_vector_[i] << endl; \
                            \

@@ -6,7 +6,7 @@ function [A_n,u] = helmholtz (x_coords, y_coords, delta, n_terms)
     
     for i=1:n_terms
         n = i*2;
-        A_n(i) = (8.0 / (n^4 * pi^4 + 1/delta));
+        A_n(i) = -(8.0 / (n^2 * pi^2 * (n^2 * pi^2 + 1/delta) ));
     end
     
     for i=1:n_x
@@ -15,7 +15,7 @@ function [A_n,u] = helmholtz (x_coords, y_coords, delta, n_terms)
             y = y_coords(j);
         
             for n=1:n_terms
-                u(i,j) = u(i,j) + A_n(n) * sin(n*pi*x) * sin(n*pi*y);
+                u(i,j) = u(i,j) + A_n(n) * sin((2*n-1)*pi*x) * sin((2*n-1)*pi*y);
             end
         end
     end
