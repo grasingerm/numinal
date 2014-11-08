@@ -266,6 +266,50 @@ iter_soln_t conj_grad_precond
 }
 
 /**
+ * Solve a system of equations by the preconditioned conjugate gradient method
+ *
+ * \param A Matrix of equations
+ * \param b Solutions of equations
+ * \param inv_C Inverse of the conditioning matrix "C", rvalue reference
+ * \param x_o Initial guess of x vector
+ * \param tol Error tolerance
+ * \param max_iter Maximum number of iterations
+ * \return tuple(x values, has converged?)
+ */
+iter_soln_t conj_grad_precond
+    (const arma::mat& A, const arma::vec& b, const arma::mat&& inv_C, 
+    arma::vec x, const double tol, const unsigned int max_iter)
+{
+    /* initialize data */
+    double t, beta;
+    vec r = b - A*x;
+    vec w = inv_C * r;
+    vec v = inv_C.t() * w;
+    vec u;
+    double alpha = dot(w,w);
+    
+    for (unsigned int iter = 0; iter < max_iter; iter++)
+    {
+        /* check for convergence */
+        if (norm(v) < tol) return iter_soln_t(x, true);
+        
+        u = A*v;
+        t = alpha / dot(v,u);
+        x += t*v;
+        r -= t*u;
+        w = inv_C * r;
+        beta = dot(w,w);
+        
+        if (abs(beta) < tol && norm(r) < tol) return iter_soln_t(x, true);
+        
+        v = inv_C*w + beta/alpha*v;
+        alpha = beta;
+    }
+    
+    return iter_soln_t(x, false);
+}
+
+/**
  * Solve a system of equations by the steepest descent conjugate gradient method
  *
  * \param A Matrix of equations

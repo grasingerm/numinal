@@ -23,14 +23,17 @@ set(EXECUTABLE_OUTPUT_PATH bin)
 include_directories(../../share)
 
 # dependencies
-add_executable(hw3 main.cpp iterative.cpp)
+add_executable(hw3ae main.cpp iterative.cpp)
+add_executable(hw3fi fi.cpp iterative.cpp)
 
 # link libraries
-target_link_libraries(hw3 armadillo)
+target_link_libraries(hw3ae armadillo)
+target_link_libraries(hw3fi armadillo)
 
 # uncomment if using the standard c math library
 # if (UNIX)
 #     target_link_libraries(some_executable m)
 # endif (UNIX)
 
-install(TARGETS hw3 DESTINATION bin)
+install(TARGETS hw3ae DESTINATION bin)
+install(TARGETS hw3fi DESTINATION bin)
