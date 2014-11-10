@@ -23,8 +23,8 @@ set(EXECUTABLE_OUTPUT_PATH bin)
 include_directories(../../share)
 
 # dependencies
-add_executable(hw3ae main.cpp iterative.cpp)
-add_executable(hw3fi fi.cpp iterative.cpp)
+add_executable(hw3ae main.cpp iterative.cpp finite_difference.cpp)
+add_executable(hw3fi fi.cpp iterative.cpp finite_difference.cpp)
 
 # link libraries
 target_link_libraries(hw3ae armadillo)
