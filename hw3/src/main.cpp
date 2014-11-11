@@ -76,16 +76,16 @@ int main()
     helm_N16_data.close();
 
     const auto delta = 0.01;
+    const auto bc_value = 0.;
     auto n = uint_fast32_t { 16 };
     auto m = n;
     
     auto h = 1./n;
  
     /* helmholtz size 16 */
-    auto grid = create_grid_rectangle_helmholtz(m,n,h,delta);
-    vec b(n*m);
-    b.fill(1.*delta); /*!< R(x,y) = 1 */
-    enforce_bcs(m, n, grid, b, 0.);
+    mat grid;
+    vec b;
+    tie (grid, b) = create_grid_rectangle_helmholtz (m,n,h,delta,bc_value);
     
     ofstream grid_file;
     grid_file.open("grid_N-16.txt");
@@ -185,10 +185,7 @@ int main()
     h = 1./n;
  
     /* helmholtz size 16 */
-    grid = create_grid_rectangle_helmholtz(m,n,h,delta);
-    b.resize(n*m);
-    b.fill(1.*delta); /*!< R(x,y) = 1 */
-    enforce_bcs(m, n, grid, b, 0.);
+    tie (grid, b) = create_grid_rectangle_helmholtz (m,n,h,delta,bc_value);
     
     grid_file.open("grid_N-64.txt");
     grid_file << grid << endl;

@@ -1,6 +1,6 @@
 function hw3_prob1__wrapper (n_x, n_y, L, delta, n_terms)
-    x_coords = linspace(0, L, n_x);
-    y_coords = linspace(0, L, n_y);
+    x_coords = linspace(L/n_x, L-L/n_x, n_x);
+    y_coords = linspace(L/n_y, L-L/n_y, n_y);
     
     [A_n,u] = helmholtz (x_coords,y_coords,delta,n_terms);
     

@@ -76,22 +76,21 @@ int main()
     helm_N16_data.close();
 
     const auto delta = 0.01;
+    const auto bc_value = 0.;
     auto n = uint_fast32_t { 16 };
     auto m = n;
     
     auto h = 1./n;
  
     /* helmholtz size 16 */
-    auto grid = create_grid_rectangle_helmholtz(m,n,h,delta);
+    mat grid;
+    vec b;
+    tie (grid, b) = create_grid_rectangle_helmholtz(m,n,h,delta,bc_value);
     mat inv_C(n*m, n*m);
     inv_C.zeros();
     for (auto i = uint_fast32_t { 0 }; i < grid.n_rows; i++)
         inv_C(i,i) = grid(i,i);
     inv_C = inv_C.i();
-    
-    vec b(n*m);
-    b.fill(1.*delta); /*!< R(x,y) = 1 */
-    enforce_bcs(m, n, grid, b, 0.);
 
     bool has_converged;
     vec x(m*n);
@@ -167,16 +166,12 @@ int main()
     h = 1./n;
  
     /* helmholtz size 64 */
-    grid = create_grid_rectangle_helmholtz(m,n,h,delta);
+    tie (grid, b) = create_grid_rectangle_helmholtz(m,n,h,delta,bc_value);
     inv_C.resize(n*m, n*m);
     inv_C.zeros();
     for (auto i = uint_fast32_t { 0 }; i < grid.n_rows; i++)
         inv_C(i,i) = grid(i,i);
     inv_C = inv_C.i();
-    
-    b.resize(n*m);
-    b.fill(1.*delta); /*!< R(x,y) = 1 */
-    enforce_bcs(m, n, grid, b, 0.);
     
     x.resize(m*n);
     x.zeros();
