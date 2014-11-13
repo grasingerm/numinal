@@ -182,7 +182,7 @@ iter_soln_t gauss_seidel
  * \param A Matrix of system of equations
  * \param b Solution vector
  */
-void reorder_for_jacobi_M(mat& A, vec& b)
+void reorder_for_jacobi_M (mat& A, vec& b)
 {
     unsigned int n = A.n_rows, row;
     double max, abs_val;
@@ -214,7 +214,7 @@ void reorder_for_jacobi_M(mat& A, vec& b)
  * \param b Solution vector
  * \return tuple(reordered matrix, reordered solution vector)
  */
-std::tuple<mat, vec> reorder_for_jacobi(mat A, vec b)
+std::tuple<mat, vec> reorder_for_jacobi (mat A, vec b)
 {
     /* mutate and return copies of A and b */
     reorder_for_jacobi_M(A, b);

@@ -1,4 +1,4 @@
-function [A_n,u] = helmholtz (x_coords, y_coords, delta, n_terms)
+function [A_nm,u] = helmholtz (x_coords, y_coords, delta, n_terms)
     [garbage,n_x] = size(x_coords);
     [garbage,n_y] = size(y_coords);
     u = zeros(n_x,n_y);
@@ -8,8 +8,8 @@ function [A_n,u] = helmholtz (x_coords, y_coords, delta, n_terms)
         for j=1:n_terms
             n = 2*i-1;
             m = 2*j-1;
-            A_nm(i,j) = (16.0 / 
-                ( (-n^2*pi^2 - m^2*pi^2 - 1/delta) * n*m*pi^2 )
+            A_nm(i,j) = (16.0 / ...
+                ( (-n^2*pi^2 - m^2*pi^2 - 1/delta) * n*m*pi^2 ) ...
                 );
         end
     end
