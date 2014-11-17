@@ -25,10 +25,12 @@ include_directories(../../share)
 # dependencies
 add_executable(hw3ae main.cpp iterative.cpp finite_difference.cpp)
 add_executable(hw3fi fi.cpp iterative.cpp finite_difference.cpp)
+add_executable(tsbvp_by_pcg test_solve_bvp_by_conj_grad_precond.cpp iterative.cpp finite_difference.cpp)
 
 # link libraries
 target_link_libraries(hw3ae armadillo)
 target_link_libraries(hw3fi armadillo)
+target_link_libraries(tsbvp_by_pcg armadillo)
 
 # uncomment if using the standard c math library
 # if (UNIX)
@@ -37,3 +39,4 @@ target_link_libraries(hw3fi armadillo)
 
 install(TARGETS hw3ae DESTINATION bin)
 install(TARGETS hw3fi DESTINATION bin)
+install(TARGETS tsbvp_by_pcg DESTINATION bin)

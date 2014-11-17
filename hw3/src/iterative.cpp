@@ -276,9 +276,9 @@ iter_soln_t conj_grad_precond
  * \param max_iter Maximum number of iterations
  * \return tuple(x values, has converged?)
  */
-iter_soln_t conj_grad_precond
-    (const arma::mat& A, const arma::vec& b, const arma::mat&& inv_C, 
-    arma::vec x, const double tol, const unsigned int max_iter)
+iter_soln_t conj_grad_precond (const arma::mat& A, const arma::vec& b, 
+    const arma::mat&& inv_C, arma::vec x, const double tol, 
+    const unsigned int max_iter)
 {
     /* initialize data */
     double t, beta;
@@ -319,9 +319,8 @@ iter_soln_t conj_grad_precond
  * \param max_iter Maximum number of iterations
  * \return tuple(x values, has converged?)
  */
-iter_soln_t conj_grad_steepest_desc
-    (const arma::mat& A, const arma::vec& b, arma::vec x, const double tol, 
-    const unsigned int max_iter)
+iter_soln_t conj_grad_steepest_desc (const arma::mat& A, const arma::vec& b, 
+    arma::vec x, const double tol, const unsigned int max_iter)
 {
     /* initialize data */
     double t;
@@ -330,15 +329,15 @@ iter_soln_t conj_grad_steepest_desc
     for (unsigned int iter = 0; iter < max_iter; iter++)
     {
         /* check for convergence */
-        if (norm(r) < tol) return iter_soln_t(x, true);
+        if (norm (r) < tol) return iter_soln_t (x, true);
         
         /* update solution using gradient */
-        t = dot(r,r) / dot(r, A*r);
+        t = dot (r,r) / dot (r, A*r);
         x += t * r;
         
         /* compute the residual */
         r = b - A*x;
     }
     
-    return iter_soln_t(x, false);
+    return iter_soln_t (x, false);
 }

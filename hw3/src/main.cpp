@@ -136,12 +136,14 @@ int main()
     vector<double> gsor_error_analytical;
     vector<double> gsor_error_residual;
     iter = 1;
-    
+    const auto omega_sor = 1.95;
+
     do
     {
-        cout << "Gauss-Seidel SOR=1.25, N=16, iter=" << iter;
+        cout << "Gauss-Seidel SOR=" << omega_sor << ", N=16, iter=" << iter;
     
-        tie (xs, has_converged) = gauss_seidel (grid, b, xs, 1.e-4, 1, 1.25);
+        tie (xs, has_converged) = gauss_seidel (grid, b, xs, 1.e-4, 1, 
+            omega_sor);
         gsor_error_analytical.push_back(norm(xs - helm_N16, "inf") / 
             norm(helm_N16, "inf"));
         gsor_error_residual.push_back(norm(b - grid*xs, "inf"));
@@ -234,9 +236,9 @@ int main()
     iter = 1;
     do
     {
-        cout << "Gauss-Seidel SOR=1.25, N=64, iter=" << iter;
+        cout << "Gauss-Seidel SOR=" << omega_sor << ", N=64, iter=" << iter;
     
-        tie (xs, has_converged) = gauss_seidel (grid, b, xs, 1.e-4, 1, 1.25);
+        tie (xs, has_converged) = gauss_seidel (grid, b, xs, 1.e-4, 1, omega_sor);
         gsor_error_analytical.push_back(norm(xs - helm_N64, "inf") / 
             norm(helm_N64, "inf"));
         gsor_error_residual.push_back(norm(b - grid*xs, "inf"));
