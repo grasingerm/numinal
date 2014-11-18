@@ -4,6 +4,11 @@
 
 using namespace arma;
 
+/*
+ * TODO: consider a way in which testing for convergence and quantifying
+ * error is uniform for all iterative methods
+ */
+
 /**
  * Solve a system of equations by the jacobi iterative method
  *
@@ -247,7 +252,7 @@ iter_soln_t conj_grad_precond
     for (unsigned int iter = 0; iter < max_iter; iter++)
     {
         /* check for convergence */
-        if (norm(v) < tol) return iter_soln_t(x, true);
+        //if (norm(v) < tol) return iter_soln_t(x, true);
         
         u = A*v;
         t = alpha / dot(v,u);
@@ -256,7 +261,8 @@ iter_soln_t conj_grad_precond
         w = inv_C * r;
         beta = dot(w,w);
         
-        if (abs(beta) < tol && norm(r) < tol) return iter_soln_t(x, true);
+        if (abs(beta) < tol && norm(r) < tol) 
+            return iter_soln_t(x, true);
         
         v = inv_C*w + beta/alpha*v;
         alpha = beta;
@@ -291,7 +297,7 @@ iter_soln_t conj_grad_precond (const arma::mat& A, const arma::vec& b,
     for (unsigned int iter = 0; iter < max_iter; iter++)
     {
         /* check for convergence */
-        if (norm(v) < tol) return iter_soln_t(x, true);
+        //if (norm(v) < tol) return iter_soln_t(x, true);
         
         u = A*v;
         t = alpha / dot(v,u);
@@ -300,7 +306,8 @@ iter_soln_t conj_grad_precond (const arma::mat& A, const arma::vec& b,
         w = inv_C * r;
         beta = dot(w,w);
         
-        if (abs(beta) < tol && norm(r) < tol) return iter_soln_t(x, true);
+        if (abs(beta) < tol && norm(r) < tol) 
+            return iter_soln_t(x, true);
         
         v = inv_C*w + beta/alpha*v;
         alpha = beta;

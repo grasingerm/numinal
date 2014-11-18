@@ -50,6 +50,7 @@ using namespace std;
 int main()
 {
     const auto max_iterations = uint_fast32_t { 1000000 };
+    const auto tol = 1e-4;
 
     vector<string> columns;
     vec::fixed<16*16> helm_N16;
@@ -103,14 +104,14 @@ int main()
     {
         cout << "Jacobi, N=16, iter=" << iter;
     
-        tie (xj, has_converged) = jacobi (grid, b, xj, 1.e-4, 1);
+        tie (xj, has_converged) = jacobi (grid, b, xj, 1.e-9, 1);
         jacobi_error_analytical.push_back(norm(xj - helm_N16, "inf") / 
             norm(helm_N16, "inf"));
         jacobi_error_residual.push_back(norm(b - grid*xj, "inf"));
         
         cout << ", analyt_err=" << jacobi_error_analytical.back()
              << ", resid_err=" << jacobi_error_residual.back() << endl;
-    } while (!has_converged && ++iter <= max_iterations);
+    } while (jacobi_error_residual.back() > tol && ++iter <= max_iterations);
     
     vec xg(m*n);
     xg.zeros();
@@ -122,27 +123,27 @@ int main()
     {
         cout << "Gauss-Seidel, N=16, iter=" << iter;
     
-        tie (xg, has_converged) = gauss_seidel (grid, b, xg, 1.e-4, 1);
+        tie (xg, has_converged) = gauss_seidel (grid, b, xg, 1.e-9, 1);
         gauss_error_analytical.push_back(norm(xg - helm_N16, "inf") / 
             norm(helm_N16, "inf"));
         gauss_error_residual.push_back(norm(b - grid*xg, "inf"));
         
         cout << ", analyt_err=" << gauss_error_analytical.back()
              << ", resid_err=" << gauss_error_residual.back() << endl;
-    } while (!has_converged && ++iter <= max_iterations);
+    } while (gauss_error_residual.back() > tol && ++iter <= max_iterations);
     
     vec xs(m*n);
     xs.zeros();
     vector<double> gsor_error_analytical;
     vector<double> gsor_error_residual;
     iter = 1;
-    const auto omega_sor = 1.95;
+    const auto omega_sor = 1.35;
 
     do
     {
         cout << "Gauss-Seidel SOR=" << omega_sor << ", N=16, iter=" << iter;
     
-        tie (xs, has_converged) = gauss_seidel (grid, b, xs, 1.e-4, 1, 
+        tie (xs, has_converged) = gauss_seidel (grid, b, xs, 1.e-9, 1, 
             omega_sor);
         gsor_error_analytical.push_back(norm(xs - helm_N16, "inf") / 
             norm(helm_N16, "inf"));
@@ -150,7 +151,7 @@ int main()
         
         cout << ", analyt_err=" << gsor_error_analytical.back()
              << ", resid_err=" << gsor_error_residual.back() << endl;
-    } while (!has_converged && ++iter <= max_iterations);
+    } while (gsor_error_residual.back() > tol && ++iter <= max_iterations);
     
     WRITE_OUT_APPROX_RESULTS(h16_appox, "h16_approx.dsv", helm_N16, xj, xg, xs);
     WRITE_OUT_ERROR_RESULTS(h16_jacobi, "h16_jacobi.dsv", 
@@ -202,14 +203,14 @@ int main()
     {
         cout << "Jacobi, N=64, iter=" << iter;
     
-        tie (xj, has_converged) = jacobi (grid, b, xj, 1.e-4, 1);
+        tie (xj, has_converged) = jacobi (grid, b, xj, 1.e-9, 1);
         jacobi_error_analytical.push_back(norm(xj - helm_N64, "inf") / 
             norm(helm_N64, "inf"));
         jacobi_error_residual.push_back(norm(b - grid*xj, "inf"));
         
         cout << ", analyt_err=" << jacobi_error_analytical.back()
              << ", resid_err=" << jacobi_error_residual.back() << endl;
-    } while (!has_converged && ++iter <= max_iterations);
+    } while (jacobi_error_residual.back() > tol && ++iter <= max_iterations);
     
     xg.resize(m*n);
     xg.zeros();
@@ -220,14 +221,14 @@ int main()
     {
         cout << "Gauss-Seidel, N=64, iter=" << iter;
     
-        tie (xg, has_converged) = gauss_seidel (grid, b, xg, 1.e-4, 1);
+        tie (xg, has_converged) = gauss_seidel (grid, b, xg, 1.e-9, 1);
         gauss_error_analytical.push_back(norm(xg - helm_N64, "inf") / 
             norm(helm_N64, "inf"));
         gauss_error_residual.push_back(norm(b - grid*xg, "inf"));
         
         cout << ", analyt_err=" << gauss_error_analytical.back()
              << ", resid_err=" << gauss_error_residual.back() << endl;
-    } while (!has_converged && ++iter <= max_iterations);
+    } while (gauss_error_residual.back() > tol && ++iter <= max_iterations);
     
     xs.resize(m*n);
     xs.zeros();
@@ -238,14 +239,14 @@ int main()
     {
         cout << "Gauss-Seidel SOR=" << omega_sor << ", N=64, iter=" << iter;
     
-        tie (xs, has_converged) = gauss_seidel (grid, b, xs, 1.e-4, 1, omega_sor);
+        tie (xs, has_converged) = gauss_seidel (grid, b, xs, 1.e-9, 1, omega_sor);
         gsor_error_analytical.push_back(norm(xs - helm_N64, "inf") / 
             norm(helm_N64, "inf"));
         gsor_error_residual.push_back(norm(b - grid*xs, "inf"));
         
         cout << ", analyt_err=" << gsor_error_analytical.back()
              << ", resid_err=" << gsor_error_residual.back() << endl;
-    } while (!has_converged && ++iter <= max_iterations);
+    } while (gsor_error_residual.back() > tol && ++iter <= max_iterations);
     
     WRITE_OUT_APPROX_RESULTS(h64_appox, "h64_approx.dsv", helm_N64, xj, xg, xs);
     WRITE_OUT_ERROR_RESULTS(h64_jacobi, "h64_jacobi.dsv", 

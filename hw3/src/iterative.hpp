@@ -31,8 +31,8 @@ iter_soln_t gauss_seidel
     (const arma::mat&, const arma::vec&, const double, const unsigned int,
     const double);
     
-void reorder_for_jacobi_M(arma::mat&, arma::vec&);
-std::tuple<arma::mat,arma::vec> reorder_for_jacobi(arma::mat, arma::vec);
+void reorder_for_jacobi_M (arma::mat&, arma::vec&);
+std::tuple<arma::mat,arma::vec> reorder_for_jacobi (arma::mat, arma::vec);
 
 /* conjugate gradient method */
 iter_soln_t conj_grad_precond
