@@ -50,7 +50,7 @@ using namespace std;
 int main()
 {
     const auto max_iterations = uint_fast32_t { 1000000 };
-    const auto tol = 1e-4;
+    const auto tol = 1e-6;
 
     vector<string> columns;
     vec::fixed<16*16> helm_N16;
@@ -94,31 +94,11 @@ int main()
     inv_C = inv_C.i();
 
     bool has_converged;
-    vec x(m*n);
-    vector<double> conj_grad_error_analytical;
-    vector<double> conj_grad_error_residual;
     auto iter = uint_fast64_t {1};
-    
-    do
-    {
-        x.zeros();
-
-        cout << "Conjugate Gradient, N=16, iter=" << iter;
-    
-        tie (x, has_converged) = 
-            conj_grad_steepest_desc (grid, b, x, 1.e-9, iter);
-        conj_grad_error_analytical.push_back(norm(x - helm_N16, "inf") / 
-            norm(helm_N16, "inf"));
-        conj_grad_error_residual.push_back(norm(b - grid*x, "inf"));
-        
-        cout << ", analyt_err=" << conj_grad_error_analytical.back()
-             << ", resid_err=" << conj_grad_error_residual.back() << endl;
-    } while (conj_grad_error_residual.back() > tol && ++iter <= max_iterations);
     
     vec xp(m*n);
     vector<double> pre_conj_grad_error_analytical;
     vector<double> pre_conj_grad_error_residual;
-    iter = 1;
     
     do
     {
@@ -137,10 +117,7 @@ int main()
     } while (pre_conj_grad_error_residual.back() > tol 
         && ++iter <= max_iterations);
     
-    WRITE_OUT_APPROX_RESULTS(h16_appox, "h16_cg_approx.dsv", helm_N16, x, xp);
-    WRITE_OUT_ERROR_RESULTS(h16_conj_grad, "h16_conj_grad.dsv", 
-        conj_grad_error_analytical, conj_grad_error_residual);
-    WRITE_OUT_ERROR_RESULTS(h16_precond_conj_grad, "h16_precond_conj_grad.dsv", 
+    WRITE_OUT_ERROR_RESULTS(h16_precond_conj_grad, "h16_precond_conj_grad_1e-6.dsv", 
         pre_conj_grad_error_analytical, pre_conj_grad_error_residual);
         
     /* ----------------------------- N = 64 -------------------------------- */
@@ -177,27 +154,6 @@ int main()
         inv_C(i,i) = grid(i,i);
     inv_C = inv_C.i();
     
-    x.resize(m*n);
-    conj_grad_error_analytical.clear();
-    conj_grad_error_residual.clear();
-    iter = 1;
-    
-    do
-    {
-        x.zeros();
-
-        cout << "Conjugate Gradient, N=64, iter=" << iter;
-    
-        tie (x, has_converged) = 
-            conj_grad_steepest_desc (grid, b, x, 1.e-9, iter);
-        conj_grad_error_analytical.push_back(norm(x - helm_N64, "inf") / 
-            norm(helm_N64, "inf"));
-        conj_grad_error_residual.push_back(norm(b - grid*x, "inf"));
-        
-        cout << ", analyt_err=" << conj_grad_error_analytical.back()
-             << ", resid_err=" << conj_grad_error_residual.back() << endl;
-    } while (conj_grad_error_residual.back() > tol && ++iter <= max_iterations);
-    
     xp.resize(m*n);
     pre_conj_grad_error_analytical.clear();
     pre_conj_grad_error_residual.clear();
@@ -220,10 +176,7 @@ int main()
     } while (pre_conj_grad_error_residual.back() > tol
         && ++iter <= max_iterations);
     
-    WRITE_OUT_APPROX_RESULTS(h64_appox, "h64_cg_approx.dsv", helm_N64, x, xp);
-    WRITE_OUT_ERROR_RESULTS(h64_conj_grad, "h64_conj_grad.dsv", 
-        conj_grad_error_analytical, conj_grad_error_residual);
-    WRITE_OUT_ERROR_RESULTS(h64_precond_conj_grad, "h64_precond_conj_grad.dsv", 
+    WRITE_OUT_ERROR_RESULTS(h64_precond_conj_grad, "h64_precond_conj_grad_1e-6.dsv", 
         pre_conj_grad_error_analytical, pre_conj_grad_error_residual);
 
     return 0;
