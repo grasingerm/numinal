@@ -14,3 +14,7 @@ build/
 build/*
 */build
 */build/*
+build_test/
+build_test/*
+*/build_test
+*/build_test/*
