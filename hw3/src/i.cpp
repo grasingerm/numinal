@@ -62,11 +62,7 @@ int main()
     mat grid;
     vec b;
     tie (grid, b) = create_grid_rectangle_laplace(m,n,h,bc_value);
-    mat inv_C(n*m, n*m);
-    inv_C.zeros();
-    for (auto i = uint_fast32_t { 0 }; i < grid.n_rows; i++)
-        inv_C(i,i) = grid(i,i);
-    inv_C = inv_C.i();
+    auto inv_C = precond_mat_jacobi_i (grid);
 
     bool has_converged;
     auto iter = uint_fast64_t {1};
@@ -96,11 +92,7 @@ int main()
  
     /* helmholtz size 64 */
     tie (grid, b) = create_grid_rectangle_laplace(m,n,h,bc_value);
-    inv_C.resize(n*m, n*m);
-    inv_C.zeros();
-    for (auto i = uint_fast32_t { 0 }; i < grid.n_rows; i++)
-        inv_C(i,i) = grid(i,i);
-    inv_C = inv_C.i();
+    inv_C = precond_mat_jacobi_i (grid);
     
     xp.resize(m*n);
     pre_conj_grad_error_residual.clear();

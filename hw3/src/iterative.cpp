@@ -317,6 +317,23 @@ iter_soln_t conj_grad_precond (const arma::mat& A, const arma::vec& b,
 }
 
 /**
+ * Returns the inverse of a jacobi preconditioning matrix. Much more efficient
+ * than creating a preconditioning matrix and then taking the inverse of it.
+ *
+ * \param A Matrix of equations
+ * \return inverse jacobi diagonal preconditioning matrix
+ */
+arma::mat precond_mat_jacobi_i (const arma::mat& A)
+{
+    mat inv_C (A.n_rows, A.n_cols);
+    inv_C.zeros ();
+    for (unsigned int i = 0; i < inv_C.n_rows; i++)
+        inv_C (i,i) = 1. / A (i,i);
+    
+    return inv_C;
+}
+
+/**
  * Solve a system of equations by the steepest descent conjugate gradient method
  *
  * \param A Matrix of equations

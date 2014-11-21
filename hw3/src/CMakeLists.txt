@@ -28,6 +28,7 @@ add_executable(hw3fi fi.cpp iterative.cpp finite_difference.cpp)
 add_executable(hw3h h.cpp iterative.cpp finite_difference.cpp)
 add_executable(hw3i i.cpp iterative.cpp finite_difference.cpp)
 add_executable(tsbvp_by_pcg test_solve_bvp_by_conj_grad_precond.cpp iterative.cpp finite_difference.cpp)
+add_executable(hw3extracredit extra-credit.cpp eigen.cpp iterative.cpp finite_difference.cpp direct_methods.cpp)
 
 # link libraries
 target_link_libraries(hw3ae armadillo)
@@ -35,6 +36,7 @@ target_link_libraries(hw3fi armadillo)
 target_link_libraries(hw3h armadillo)
 target_link_libraries(hw3i armadillo)
 target_link_libraries(tsbvp_by_pcg armadillo)
+target_link_libraries(hw3extracredit armadillo)
 
 # uncomment if using the standard c math library
 # if (UNIX)
@@ -46,3 +48,4 @@ install(TARGETS hw3fi DESTINATION bin)
 install(TARGETS hw3h DESTINATION bin)
 install(TARGETS hw3i DESTINATION bin)
 install(TARGETS tsbvp_by_pcg DESTINATION bin)
+install(TARGETS hw3extracredit DESTINATION bin)

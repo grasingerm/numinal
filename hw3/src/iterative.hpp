@@ -50,9 +50,11 @@ iter_soln_t conj_grad_steepest_desc
  * \param A Matrix of equations
  * \return Preconditioning matrix
  */
-inline arma::mat precond_mat_jacobi(const arma::mat& A)
+inline arma::mat precond_mat_jacobi (const arma::mat& A)
 {
     return diagmat(A);
 }
+
+arma::mat precond_mat_jacobi_i (const arma::mat&);
 
 #endif /* __ITERATIVE_HPP__ */

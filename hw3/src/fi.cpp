@@ -87,11 +87,7 @@ int main()
     mat grid;
     vec b;
     tie (grid, b) = create_grid_rectangle_helmholtz(m,n,h,delta,bc_value);
-    mat inv_C(n*m, n*m);
-    inv_C.zeros();
-    for (auto i = uint_fast32_t { 0 }; i < grid.n_rows; i++)
-        inv_C(i,i) = grid(i,i);
-    inv_C = inv_C.i();
+    auto inv_C = precond_mat_jacobi_i (grid);
 
     bool has_converged;
     vec x(m*n);
@@ -106,7 +102,7 @@ int main()
         cout << "Conjugate Gradient, N=16, iter=" << iter;
     
         tie (x, has_converged) = 
-            conj_grad_steepest_desc (grid, b, x, 1.e-9, iter);
+            conj_grad_precond (grid, b, eye <mat> (n*m,n*m), x, 1.e-9, iter);
         conj_grad_error_analytical.push_back(norm(x - helm_N16, "inf") / 
             norm(helm_N16, "inf"));
         conj_grad_error_residual.push_back(norm(b - grid*x, "inf"));
@@ -171,11 +167,7 @@ int main()
  
     /* helmholtz size 64 */
     tie (grid, b) = create_grid_rectangle_helmholtz(m,n,h,delta,bc_value);
-    inv_C.resize(n*m, n*m);
-    inv_C.zeros();
-    for (auto i = uint_fast32_t { 0 }; i < grid.n_rows; i++)
-        inv_C(i,i) = grid(i,i);
-    inv_C = inv_C.i();
+    inv_C = precond_mat_jacobi_i (grid);
     
     x.resize(m*n);
     conj_grad_error_analytical.clear();
@@ -189,7 +181,7 @@ int main()
         cout << "Conjugate Gradient, N=64, iter=" << iter;
     
         tie (x, has_converged) = 
-            conj_grad_steepest_desc (grid, b, x, 1.e-9, iter);
+            conj_grad_precond (grid, b, eye <mat> (n*m,n*m), x, 1.e-9, iter);
         conj_grad_error_analytical.push_back(norm(x - helm_N64, "inf") / 
             norm(helm_N64, "inf"));
         conj_grad_error_residual.push_back(norm(b - grid*x, "inf"));
